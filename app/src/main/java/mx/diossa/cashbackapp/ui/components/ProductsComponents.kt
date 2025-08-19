@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.diossa.cashbackapp.domain.model.Product
 import mx.diossa.cashbackapp.ui.theme.TextGreyComponent
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor
 import mx.diossa.cashbackapp.ui.theme.TextColor
@@ -67,9 +68,13 @@ fun HeaderTitleProductComponent(onBack: () -> Unit){
 }
 
 
-@Preview
+
 @Composable
-fun inforCard(){
+fun inforCard(
+    balance: Double,
+    selected: Double,
+    remaining: Double
+) {
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -107,7 +112,7 @@ fun inforCard(){
                             fontStyle = FontStyle.Normal
                         ),
                         color = Color.Black,
-                        text = "$500.00"
+                        text = "$${balance}"
                     )
                 }
 
@@ -127,7 +132,7 @@ fun inforCard(){
                         fontStyle = FontStyle.Normal
                     ),
                         color = Color.Black,
-                        text = "$200.00"
+                        text = "$${selected}"
                     )
                 }
 
@@ -148,7 +153,7 @@ fun inforCard(){
                             fontStyle = FontStyle.Normal
                         ),
                         color = PrimaryColor,
-                        text = "$300.00"
+                        text = "$${remaining}"
                     )
                 }
 
@@ -204,9 +209,13 @@ fun SearchBar(
     )
 }
 
-@Preview
 @Composable
-fun ItemProduct() {
+fun ItemProduct(
+    product: Product,
+    quantity: Int,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,14 +238,14 @@ fun ItemProduct() {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Producto B",
+                    text = product.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "$150.00",
+                    text = "$${product.price}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Red
@@ -248,7 +257,7 @@ fun ItemProduct() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { /* restar */ },
+                    onClick = onDecrement,
                     modifier = Modifier
                         .size(50.dp)
                         .background(Color(0xFFE4E6EB), shape = CircleShape)
@@ -259,7 +268,7 @@ fun ItemProduct() {
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Text(
-                    text = "1",
+                    text = quantity.toString(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -267,7 +276,7 @@ fun ItemProduct() {
                 Spacer(modifier = Modifier.width(12.dp))
 
                 IconButton(
-                    onClick = { /* sumar */ },
+                    onClick = onIncrement,
                     modifier = Modifier
                         .size(50.dp)
                         .background(Color.Red, shape = CircleShape)

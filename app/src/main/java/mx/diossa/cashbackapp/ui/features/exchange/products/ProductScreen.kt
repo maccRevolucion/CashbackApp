@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import mx.diossa.cashbackapp.ui.components.HeaderTitleProductComponent
 import mx.diossa.cashbackapp.ui.components.ItemProduct
@@ -28,8 +30,9 @@ import mx.diossa.cashbackapp.ui.components.bottomButton
 import mx.diossa.cashbackapp.ui.components.inforCard
 
 @Composable
-fun ProductScreen(navController: NavHostController){
-    var searchText by remember { mutableStateOf("") }
+fun ProductScreen(navController: NavHostController, viewModel: ProductsViewModel = hiltViewModel()){
+
+    val uiState = viewModel.uiState.collectAsState().value
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -45,27 +48,43 @@ fun ProductScreen(navController: NavHostController){
             ) {
                 HeaderTitleProductComponent(onBack = { navController.popBackStack() })
                 Spacer(modifier = Modifier.height(18.dp))
-                inforCard()
+                inforCard(
+                    balance = uiState.totalBalance,
+                    selected = viewModel.getSelectedAmount(),
+                    remaining = viewModel.getRemaining()
+                )
                 Spacer(modifier = Modifier.height(10.dp))
                 SubHeader()
                 Spacer(modifier = Modifier.height(8.dp))
                 SearchBar(
-                    query = searchText,
-                    onQueryChange = { searchText = it },
+                    query = uiState.query,
+                    onQueryChange = viewModel::onQueryChanged,
                     modifier = Modifier
                         .padding(8.dp)
                         .fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                ItemProduct()
-                ItemProduct()
-                ItemProduct()
+                uiState.filteredProducts.forEach { product ->
+                    ItemProduct(
+                        product = product,
+                        quantity = uiState.selectedQuantities[product] ?: 0,
+                        onIncrement = { viewModel.onIncrement(product) },
+                        onDecrement = { viewModel.onDecrement(product) }
+                    )
+                }
             }
-            Box(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(16.dp)){
-                bottomButton(onSelected = {navController.navigate("confirm")})
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                bottomButton(onSelected = {
+                    val uiState = viewModel.uiState.value
+                    val selectedString = uiState.selectedQuantities.entries.joinToString(",") { entry ->
+                        "${entry.key.name}:${entry.key.price}:${entry.value}"
+                    }
+                    navController.navigate("confirm/$selectedString")})
             }
         }
     }

@@ -1,5 +1,7 @@
 package mx.diossa.cashbackapp.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,10 +38,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.domain.model.Ticket
+import mx.diossa.cashbackapp.ui.features.history.HistoryViewModel
 import mx.diossa.cashbackapp.ui.theme.GreenCompletedComponent
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor
 import mx.diossa.cashbackapp.ui.theme.TextColor
 import mx.diossa.cashbackapp.ui.theme.TextGreyComponent
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @Preview(showBackground = true)
 @Composable
@@ -63,7 +71,7 @@ fun SearchBarHistory(
     query: String,
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholderText: String = "Buscar por ID, ticket o vendedor..."
+    placeholderText: String = "Buscar por ID, ticket o vendedor"
 ) {
     OutlinedTextField(
         value = query,
@@ -86,9 +94,12 @@ fun SearchBarHistory(
 }
 
 
-@Preview
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TicketsDone(){
+fun TicketsDoneComponent(
+    tickets: List<TicketEntity>,
+    onFilterClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -114,7 +125,7 @@ fun TicketsDone(){
             Spacer(modifier = Modifier.weight(1f))
 
             TextButton(
-                onClick = { /*TODO*/ }
+                onClick = onFilterClick
             ) {
                 Icon(
                     modifier = Modifier,
@@ -123,23 +134,27 @@ fun TicketsDone(){
                     tint = Color.Gray
                 )
             }
-
         }
         Column(modifier = Modifier
             .weight(1f)
             .verticalScroll(rememberScrollState())
             .padding(vertical = 4.dp)
         ) {
-            ItemTicketDone("R-123456", "T-1001","Juan Perez", "30/07/2025 - 10:45 AM", 350)
-            ItemTicketDone("R-123457", "T-1002","Maria Gonzales", "30/07/2025 - 09:50 AM", 500)
-            ItemTicketDone("R-123458", "T-1003","Carlos Rodriguez", "30/07/2025 - 11:25 AM", 275)
-            ItemTicketDone("R-123459", "T-1004","Manuel Cordero", "30/07/2025 - 13:33 PM", 433)
+            tickets.forEach { ticket ->
+                ItemTicketComponent(
+                    idFolio = ticket.id,
+                    idTicket = ticket.ticketNumber,
+                    sellerName = ticket.sellerName,
+                    date = ticket.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm a")),
+                    cash = ticket.amount
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ItemTicketDone(idFolio: String, idTicket: String, sellerName: String, date: String, cash: Int){
+fun ItemTicketComponent(idFolio: String, idTicket: String, sellerName: String, date: String, cash: Int){
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)

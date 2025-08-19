@@ -1,5 +1,7 @@
 package mx.diossa.cashbackapp.ui.features.navegation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -8,7 +10,6 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.QrCode2
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -26,6 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
@@ -66,7 +68,7 @@ fun BottomNavigationBar(
                 selected = selected,
                 onClick = {
                     navController.navigate(screen.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
@@ -103,11 +105,11 @@ fun BottomNavigationBar(
 @Composable
 fun shouldShowBottomBar(route: String?): Boolean {
     return when (route) {
-        Screen.Login.route -> false
         Screen.Sales.route -> false
         Screen.Products.route -> false
         Screen.ConfirmCheck.route -> false
         Screen.StatusExchange.route -> false
+        "confirm/{selected}" -> false
         else -> true
     }
 }

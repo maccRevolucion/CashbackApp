@@ -1,5 +1,7 @@
 package mx.diossa.cashbackapp.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,8 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.QrCode2
@@ -39,21 +43,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.diossa.cashbackapp.R
+import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.ui.features.menu.MenuViewModel
 import mx.diossa.cashbackapp.ui.theme.Grey20
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor
 import mx.diossa.cashbackapp.ui.theme.SecondaryColor
 import mx.diossa.cashbackapp.ui.theme.TextColor
 
-@Preview(showBackground = true)
 @Composable
-fun TextUserHeader() {
+fun TextUserHeader(employeeName: String) {
     Row (
-        modifier = Modifier.padding(12.dp).fillMaxWidth(),
+        modifier = Modifier
+            .padding(12.dp)
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
         ){
         Column {
             Text(
-                text = "Bievenido",
+                text = "Bienvenido",
                 style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -63,7 +70,7 @@ fun TextUserHeader() {
                 textAlign = TextAlign.Start
             )
             Text(
-                text = "Manuel Cordero",
+                text = employeeName,
                 style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
@@ -86,7 +93,11 @@ fun TextUserHeader() {
     }
 }
 
-
+@Preview(showBackground = true)
+@Composable
+fun Preview_Header(){
+    TextUserHeader(employeeName = "Cesar Covantes")
+}
 @Preview
 @Composable
 fun Preview_ItemTicketsPerday(){
@@ -101,12 +112,6 @@ fun Preview_ItemButtons(){
         ItemButtons(action = "Escanear QR", subtitle = "Procesar nuevo ticket", icon = Icons.Filled.QrCode2){}
         ItemButtons(action = "Historial", subtitle = "Ver tickets procesados", icon = Icons.Filled.History) {}
     }
-}
-
-@Preview
-@Composable
-fun Preview_RecenACtvity(){
-    recentActivity()
 }
 
 @Composable
@@ -230,14 +235,13 @@ fun ItemButtons(action: String, subtitle: String, icon: ImageVector,onClick: () 
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun recentActivity(){
+fun recentActivity(tickets: List<TicketEntity>, viewModel: MenuViewModel) {
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .height(300.dp),
-            //.clickable { onClick() },
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp,
             pressedElevation = 3.dp
@@ -255,16 +259,27 @@ fun recentActivity(){
                 fontWeight = FontWeight.SemiBold
             )
         }
-        Column {
-            ItemRecentFragment("10430", "1 hora", "250.00", onClick = {})
-            ItemRecentFragment("10566", "3 horas", "250.00", onClick = {})
-            ItemRecentFragment("10234", "2 horas", "250.00", onClick = {})
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            if(tickets.isEmpty()){
+                Text("No hay actividad reciente")
+            } else {
+                tickets.forEach { ticket ->
+                    ItemRecentComponent(
+                        ticketId = ticket.ticketNumber,
+                        timePassed = viewModel.calculateTimePassed(ticket.date),
+                        cashback = ticket.amount.toString(),
+                        onClick = {}
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun ItemRecentFragment(ticketId: String, timePassed: String, cashback: String, onClick: () -> Unit){
+fun ItemRecentComponent(ticketId: String, timePassed: String, cashback: String, onClick: () -> Unit){
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)

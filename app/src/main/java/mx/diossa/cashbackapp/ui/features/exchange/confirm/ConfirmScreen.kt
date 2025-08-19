@@ -11,10 +11,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import mx.diossa.cashbackapp.ui.components.ButtonBottomComponent
 import mx.diossa.cashbackapp.ui.components.HeaderTitleComponent
@@ -22,7 +24,9 @@ import mx.diossa.cashbackapp.ui.components.PrinterInfoCardComponent
 import mx.diossa.cashbackapp.ui.components.ticketResume
 
 @Composable
-fun confirmScreen(navController: NavHostController){
+fun ConfirmScreen(navController: NavHostController, viewModel: ConfirmViewModel = hiltViewModel()){
+    val uiState = viewModel.uiState.collectAsState().value
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White
@@ -37,7 +41,11 @@ fun confirmScreen(navController: NavHostController){
             ) {
                 HeaderTitleComponent(onBack = { navController.popBackStack() })
                 Spacer(modifier = Modifier.height(18.dp))
-                ticketResume()
+                ticketResume(
+                    selectedProducts = uiState.selectedProducts,
+                    total = uiState.total,
+                    date = uiState.date
+                )
                 Spacer(modifier = Modifier.height(10.dp))
                 PrinterInfoCardComponent()
             }

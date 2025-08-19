@@ -1,12 +1,16 @@
 package mx.diossa.cashbackapp.ui.features.menu
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -15,19 +19,31 @@ import mx.diossa.cashbackapp.ui.components.ItemButtons
 import mx.diossa.cashbackapp.ui.components.ItemTicketsPerDay
 import mx.diossa.cashbackapp.ui.components.TextUserHeader
 import mx.diossa.cashbackapp.ui.components.recentActivity
+import mx.diossa.cashbackapp.ui.features.navegation.Screen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hiltViewModel()){
     val navigationEvent by viewModel.navigationEvent.collectAsStateWithLifecycle()
+    val recentTickets by viewModel.recentTickets.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(navigationEvent){
         when(navigationEvent){
             MenuViewModel.NavigationEvent.NavigateToScanQR -> {
-                navController.navigate("scan")
+                navController.navigate("scan"){
+                    popUpTo(Screen.Home.route) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
                 viewModel.clearNavigationEvent()
             }
             MenuViewModel.NavigationEvent.NavigateToHistory ->{
-                navController.navigate("history")
+                navController.navigate("history"){
+                    popUpTo(Screen.Home.route) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
                 viewModel.clearNavigationEvent()
             }
             null -> {/* Sin accion */}
@@ -35,7 +51,7 @@ fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hilt
     }
 
     Column {
-        TextUserHeader()
+        TextUserHeader(employeeName = "Salomon")
         ItemTicketsPerDay(tickets = "12")
         Row {
             ItemButtons(
@@ -52,6 +68,10 @@ fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hilt
                 onClick = {viewModel.onHistoryClicked()}
             )
         }
-        recentActivity()
+        if(isLoading){
+            CircularProgressIndicator()
+        } else {
+            recentActivity(tickets = recentTickets, viewModel = viewModel)
+        }
     }
 }

@@ -11,7 +11,9 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -24,8 +26,19 @@ import mx.diossa.cashbackapp.ui.components.NormalTextComponent
 import mx.diossa.cashbackapp.ui.components.PasswordTextFieldComponent
 
 @Composable
-fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hiltViewModel()){
+fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = hiltViewModel()){
     val uiState = viewModel.uiState.collectAsState()
+    val navigationEvent by viewModel.navigationEvent.collectAsState()
+
+    LaunchedEffect(navigationEvent){
+        when (navigationEvent){
+            LoginViewModel.NavigationEvent.NavigateToMenu ->{
+                onLoginSuccess()
+                viewModel.clearNavigationEvent()
+            }
+            null -> {}
+        }
+    }
 
     Surface(
         color = Color.White,
@@ -46,9 +59,8 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
                 onPasswordChange = {viewModel.onPasswordChanged(it)}
             )
             ButtomComponent(
-                navController,
                 enable = uiState.value.isButtonEnabled,
-                onClick = {viewModel.onLoginClicked(navController)},
+                onClick = {viewModel.onLoginClicked()},
                 isLoading = uiState.value.isLoading
             )
         }

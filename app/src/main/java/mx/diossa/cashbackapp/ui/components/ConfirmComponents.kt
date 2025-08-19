@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.diossa.cashbackapp.domain.model.SelectedProduct
 import mx.diossa.cashbackapp.ui.theme.BlueBackgroundComponent
 import mx.diossa.cashbackapp.ui.theme.BlueComponent
 import mx.diossa.cashbackapp.ui.theme.Grey95
@@ -179,14 +180,16 @@ fun ItemPrinterInfoComponent(){
     }
 }
 
-@Preview
 @Composable
-fun ticketResume(){
+fun ticketResume(
+    selectedProducts: List<SelectedProduct>,
+    total: Double,
+    date: String
+) {
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .height(430.dp),
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp,
             pressedElevation = 3.dp
@@ -199,21 +202,105 @@ fun ticketResume(){
         Column(
             modifier = Modifier.padding(8.dp)
         ) {
-            Text(text = "Resumen del Ticket")
-            Spacer(modifier = Modifier.height(10.dp))
-            ticketDetailsCardComponent()
-            Text(text = "Productos Seleccionados")
-            Spacer(modifier = Modifier.height(10.dp))
-            ItemProductSelectedComponent()
-            ItemProductSelectedComponent()
-            HorizontalDivider()
-            ItemTotalComponent()
+            Text(text = "Resumen del Canje")
+            Spacer(modifier = Modifier.height(8.dp))
+            ticketDetailsCardComponent(date = date)
+            selectedProducts.forEach { product ->
+                ItemProductSelectedComponent(
+                    name = product.name,
+                    price = product.price,
+                    quantity = product.quantity
+                )
+            }
+            ItemTotalComponent(total = total)
         }
     }
 }
 
 @Composable
-fun ItemTotalComponent(){
+fun ticketDetailsCardComponent(date: String){
+    Surface(
+        modifier = Modifier
+            .padding(12.dp)
+            .fillMaxWidth()
+            .height(100.dp),
+        shape = RectangleShape,
+        color = Grey95,
+        tonalElevation = 2.dp,
+    ) {
+        Column {
+            ItemTicketDetailsComponent(concept = "Saldo:", value = "T-12345")
+            ItemTicketDetailsComponent(concept = "Vendedor:", value = "Juan Peréz")
+            ItemTicketDetailsComponent(concept = "Fecha:", value = date)
+        }
+    }
+}
+@Composable
+fun ItemProductSelectedComponent(
+    name: String,
+    price: Double,
+    quantity: Int
+){
+    Card(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .height(70.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 1.dp
+        ),
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text(
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Normal
+                    ),
+                    color = Color.Black,
+                    text = name
+                )
+                Spacer(modifier = Modifier.height(7.dp))
+                Text(
+                    style = TextStyle(
+                        fontWeight = FontWeight.Normal,
+                        fontStyle = FontStyle.Normal
+                    ),
+                    color = TextGreyComponent,
+                    text = "$$price x $quantity"
+                )
+            }
+
+            Text(
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Normal
+                ),
+                color = Color.Black,
+                text = "$${price * quantity}",
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+            )
+        }
+    }
+}
+
+@Composable
+fun ItemTotalComponent(total: Double){
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -253,86 +340,7 @@ fun ItemTotalComponent(){
                     fontStyle = FontStyle.Normal
                 ),
                 color = PrimaryColor,
-                text = "$500.00",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-            )
-        }
-    }
-}
-
-@Composable
-fun ticketDetailsCardComponent(){
-    Surface(
-        modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth()
-            .height(100.dp),
-        shape  = RectangleShape,
-        color = Grey95,
-        tonalElevation = 2.dp,
-    ) {
-        Column {
-            ItemTicketDetailsComponent(concept = "Saldo:", value = "T-12345")
-            ItemTicketDetailsComponent(concept = "Vendedor:", value = "Juan Peréz")
-            ItemTicketDetailsComponent(concept = "Fecha:", value = "26/07/2025")
-        }
-
-    }
-}
-@Composable
-fun ItemProductSelectedComponent(){
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .height(70.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp,
-            pressedElevation = 1.dp
-        ),
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text(
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Normal
-                    ),
-                    color = Color.Black,
-                    text = "Producto B"
-                )
-                Spacer(modifier = Modifier.height(7.dp))
-                Text(
-                    style = TextStyle(
-                        fontWeight = FontWeight.Normal,
-                        fontStyle = FontStyle.Normal
-                    ),
-                    color = TextGreyComponent,
-                    text = "$150.00 x 1"
-                )
-            }
-
-            Text(
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Normal
-                ),
-                color = Color.Black,
-                text = "$500.00",
+                text = "$$total",
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )

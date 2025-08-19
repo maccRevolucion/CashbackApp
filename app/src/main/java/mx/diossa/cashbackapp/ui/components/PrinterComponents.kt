@@ -22,10 +22,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -53,6 +49,8 @@ import mx.diossa.cashbackapp.ui.theme.Grey20
 import mx.diossa.cashbackapp.ui.theme.TextGreyComponent
 import mx.diossa.cashbackapp.ui.theme.Grey95
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor
+import mx.diossa.cashbackapp.ui.theme.RedBackgroundComponent
+import mx.diossa.cashbackapp.ui.theme.RedTextComponent
 import mx.diossa.cashbackapp.ui.theme.SecondaryColor
 import mx.diossa.cashbackapp.ui.theme.TextColor
 
@@ -73,8 +71,214 @@ fun HeaderTitle(){
     }
 }
 
+@Preview
 @Composable
-fun printerStatus(){
+fun statusConnectFailedPrinterComponent(){
+    Text(
+        text = "Desconectado",
+        color = RedTextComponent,
+        modifier = Modifier
+            .background(RedBackgroundComponent, RoundedCornerShape(8.dp))
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+    )
+}
+@Preview
+@Composable
+fun statusConnectSuccesPrinterComponent(){
+    Text(
+        text = "Conectada",
+        color = GreenCompletedComponent,
+        modifier = Modifier
+            .background(GreenBackgroundComponent, RoundedCornerShape(8.dp))
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+    )
+}
+
+@Composable
+fun PrinterDataComponent(printerName: String, isConnected: Boolean){
+    Surface(
+        modifier = Modifier
+            .padding(12.dp)
+            .width(380.dp)
+            .height(180.dp),
+        shape  = RectangleShape,
+        color = Grey95,
+        tonalElevation = 2.dp,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ){
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(12.dp)
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .size(40.dp),
+                    shape = CircleShape,
+                    color = SecondaryColor,
+                    tonalElevation = 2.dp,
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(5.dp),
+                        imageVector = Icons.Outlined.Print,
+                        contentDescription = "",
+                        tint = PrimaryColor
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .align(Alignment.Top)
+                ) {
+                    Text(
+                        text = printerName,
+                        modifier = Modifier,
+                        color = Color.Black,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+
+                    Text(
+                        text = "Impresora predeterminada",
+                        textAlign = TextAlign.Start,
+                        color = Grey20,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Normal,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.fillMaxWidth())
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterStart)
+            ) {
+                Spacer(modifier = Modifier.height(35.dp))
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text(
+                        color = TextGreyComponent,
+                        text = "Estado:"
+                    )
+                    if(isConnected){
+                        statusSuccessPrinterComponent()
+                    } else {
+                        statusFailPrinterComponent()
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text(
+                        color = TextGreyComponent,
+                        text = "Tamaño del papel:"
+                    )
+                    Text(text = "80mm")
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text(
+                        color = TextGreyComponent,
+                        text = "Tipo de conexión:"
+                    )
+                    Text(text = "Bluetooth")
+                }
+
+            }
+
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun statusFailPrinterComponent(){
+    Text(
+        color = RedTextComponent,
+        text = "No disponible"
+    )
+}
+@Preview(showBackground = true)
+@Composable
+fun statusSuccessPrinterComponent(){
+    Text(
+        color = GreenCompletedComponent,
+        text = "Lista para imprimir"
+    )
+}
+
+@Preview
+@Composable
+fun actionButtonsComponent(){
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+
+        OutlinedButton(
+            onClick = {  },
+            shape = RoundedCornerShape(4.dp),
+            modifier = Modifier
+                .height( 40.dp ),
+            contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+        ) {
+            Icon(
+                imageVector = Icons.Default.Autorenew,
+                contentDescription = "Actualizar",
+                tint = TextGreyComponent
+            )
+            Text(
+                text = "Actualizar",
+                color = TextGreyComponent,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+
+
+        Button(
+            onClick = { },
+            shape = RoundedCornerShape(4.dp),
+            modifier = Modifier
+                .height( 40.dp ),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Red
+            ),
+            contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+        ) {
+            Icon(
+                imageVector = Icons.Default.Print,
+                contentDescription = "Imprimir Prueba",
+                tint = Color.White
+            )
+            Text(
+                text = "Imprimir Prueba",
+                color = Color.White,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun printerStatus(printerName: String, isConnected: Boolean){
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,197 +303,26 @@ fun printerStatus(){
                 color = Color.Black,
                 fontWeight = FontWeight.SemiBold,
             )
-
-            Text(
-                text = "Conectada",
-                color = GreenCompletedComponent,
-                modifier = Modifier
-                    .background(GreenBackgroundComponent, RoundedCornerShape(8.dp))
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-            )
-        }
-
-        Surface(
-            modifier = Modifier
-                .padding(12.dp)
-                .width(380.dp)
-                .height(180.dp)
-                .align(Alignment.CenterHorizontally),
-            shape  = RectangleShape,
-            color = Grey95,
-            tonalElevation = 2.dp,
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-            ){
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(12.dp)
-                ) {
-                    Surface(
-                        modifier = Modifier
-                            .size(40.dp),
-                        shape = CircleShape,
-                        color = SecondaryColor,
-                        tonalElevation = 2.dp,
-                    ) {
-                        Icon(
-                            modifier = Modifier.padding(5.dp),
-                            imageVector = Icons.Outlined.Print,
-                            contentDescription = "",
-                            tint = PrimaryColor
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .align(Alignment.Top)
-                    ) {
-                        Text(
-                            text = "Star TS100",
-                            modifier = Modifier,
-                            color = Color.Black,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-
-                        Text(
-                            text = "Impresora predeterminada",
-                            textAlign = TextAlign.Start,
-                            color = Grey20,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Normal,
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.fillMaxWidth())
-                Column(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                        .align(Alignment.CenterStart)
-                ) {
-
-                    // TODO Actualizarlo por un Spacer u otro componente
-                    // Componente que no se usa pero mantiene el orden de los demás componentes
-                    Row(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text(text = "")
-                        Text(text = "")
-                    }
-
-
-                    Row(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text(
-                            color = TextGreyComponent,
-                            text = "Estado:"
-                        )
-                        Text(
-                            color = GreenCompletedComponent,
-                            text = "Lista para imprimir"
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text(
-                            color = TextGreyComponent,
-                            text = "Tamaño del papel:"
-                        )
-                        Text(text = "80mm")
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text(
-                            color = TextGreyComponent,
-                            text = "Tipo de conexión:"
-                        )
-                        Text(text = "Bluetooth")
-                    }
-
-                }
-
+            if(isConnected){
+                statusConnectSuccesPrinterComponent()
+            } else {
+                statusConnectFailedPrinterComponent()
             }
         }
 
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ){
-
-            OutlinedButton(
-                onClick = {  },
-                shape = RoundedCornerShape(4.dp),
-                modifier = Modifier
-                    .height( 40.dp ),
-                contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Autorenew,
-                    contentDescription = "Actualizar",
-                    tint = TextGreyComponent
-                )
-                Text(
-                    text = "Actualizar",
-                    color = TextGreyComponent,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-
-
-            Button(
-                onClick = { },
-                shape = RoundedCornerShape(4.dp),
-                modifier = Modifier
-                    .height( 40.dp ),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
-                ),
-                contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Print,
-                    contentDescription = "Imprimir Prueba",
-                    tint = Color.White
-                )
-                Text(
-                    text = "Imprimir Prueba",
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
-
+        PrinterDataComponent(printerName, isConnected)
+        actionButtonsComponent()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrinterConfig() {
-    var selectedPaper by remember { mutableStateOf("") }
-    val paperOptions = listOf("80mm", "120mm", "950mm")
-
+fun PrinterConfig(
+    printerName: String,
+    macAddress: String,
+    onNameChanged: (String) -> Unit,
+    onMacChanged: (String) -> Unit,
+    onSave: (String, String) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -315,9 +348,10 @@ fun PrinterConfig() {
                 )
             }
 
-            Column(modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -327,56 +361,31 @@ fun PrinterConfig() {
                     modifier = Modifier
                         .padding(vertical = 4.dp)
                         .fillMaxWidth(),
-                    value = "",
-                    onValueChange = { /* TODO: actualizar nombre */ },
-                    placeholder = { Text("Ej. MiImpresoraBT") },
+                    value = printerName,
+                    onValueChange = { onNameChanged(it) },
+                    placeholder = { Text("Ej. PrinterBT") },
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(25.dp))
 
-                // Tamaño del papel
-                Text(text = "Tamaño del papel")
-                ExposedDropdownMenuBox(
-                    expanded = selectedPaper.isNotEmpty(),
-                    onExpandedChange = { /* se abre al hacer click */ },
+                // Dirección MAC
+                Text("Dirección MAC de la impresora")
+                OutlinedTextField(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(vertical = 4.dp)
-                ) {
-                    OutlinedTextField(
-                        value = selectedPaper,
-                        onValueChange = { /* readOnly */ },
-                        readOnly = true,
-                        placeholder = { Text("Seleccionar...") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                expanded = selectedPaper.isNotEmpty()
-                            )
-                        },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = false,
-                        onDismissRequest = { /* TODO: cerrar menu */ }
-                    ) {
-                        paperOptions.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    selectedPaper = option
-                                    /* TODO: cerrar menu */
-                                }
-                            )
-                        }
-                    }
-                }
+                        .fillMaxWidth(),
+                    value = macAddress,
+                    onValueChange = { onMacChanged((it)) },
+                    placeholder = { Text("Ej. 00:11:22:33:44:55") },
+                    singleLine = true
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 //Boton de Guardado
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { onSave(printerName, macAddress) },
                     shape = RoundedCornerShape(4.dp),
                     modifier = Modifier
                         .height(40.dp)
@@ -394,10 +403,4 @@ fun PrinterConfig() {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun Preview_PrinterConfig(){
-    PrinterConfig()
 }

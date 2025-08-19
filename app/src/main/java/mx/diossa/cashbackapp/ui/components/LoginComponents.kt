@@ -168,7 +168,6 @@ fun PasswordTextFieldComponent(
 
 @Composable
 fun ButtomComponent(
-    navController: NavHostController,
     enable: Boolean,
     onClick: ()->Unit,
     isLoading: Boolean

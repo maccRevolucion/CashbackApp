@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "mx.diossa.cashbackapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -80,8 +80,6 @@ dependencies {
     implementation ("io.reactivex.rxjava3:rxandroid:3.0.0")
     implementation ("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
     implementation ("androidx.compose.foundation:foundation:1.8.3")
-    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
-    implementation ("com.google.zxing:core:3.5.1")
     implementation ("androidx.multidex:multidex:2.0.1")
     implementation (files("libs/btsdk.jar"))
     implementation ("androidx.camera:camera-core:1.3.2")
@@ -91,6 +89,10 @@ dependencies {
     implementation ("com.google.mlkit:barcode-scanning:17.2.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
     implementation ("com.google.mlkit:barcode-scanning:17.1.0")
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.preference:preference-ktx:1.2.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

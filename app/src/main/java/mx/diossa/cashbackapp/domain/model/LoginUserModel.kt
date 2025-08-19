@@ -1,6 +1,6 @@
 package mx.diossa.cashbackapp.domain.model
 
-data class LoginUser(
+data class LoginUserModel(
     val username: String = "",
     val password: String = "",
     val isButtonEnabled: Boolean = false,
