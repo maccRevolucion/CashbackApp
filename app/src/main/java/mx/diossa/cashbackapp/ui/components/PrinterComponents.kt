@@ -223,9 +223,8 @@ fun statusSuccessPrinterComponent(){
     )
 }
 
-@Preview
 @Composable
-fun actionButtonsComponent(){
+fun actionButtonsComponent(onRefresh: ()-> Unit, onPrinttest: (String) -> Unit, message: String){
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -234,7 +233,7 @@ fun actionButtonsComponent(){
     ){
 
         OutlinedButton(
-            onClick = {  },
+            onClick = { onRefresh() },
             shape = RoundedCornerShape(4.dp),
             modifier = Modifier
                 .height( 40.dp ),
@@ -254,7 +253,7 @@ fun actionButtonsComponent(){
 
 
         Button(
-            onClick = { },
+            onClick = { onPrinttest(message) },
             shape = RoundedCornerShape(4.dp),
             modifier = Modifier
                 .height( 40.dp ),
@@ -278,7 +277,13 @@ fun actionButtonsComponent(){
 }
 
 @Composable
-fun printerStatus(printerName: String, isConnected: Boolean){
+fun printerStatus(
+    printerName: String,
+    isConnected: Boolean,
+    onRefresh: () -> Unit,
+    onPrinttest: (String) -> Unit,
+    message: String
+){
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -311,7 +316,11 @@ fun printerStatus(printerName: String, isConnected: Boolean){
         }
 
         PrinterDataComponent(printerName, isConnected)
-        actionButtonsComponent()
+        actionButtonsComponent(
+            onRefresh = onRefresh,
+            onPrinttest = onPrinttest,
+            message = message
+        )
     }
 }
 
@@ -321,7 +330,7 @@ fun PrinterConfig(
     macAddress: String,
     onNameChanged: (String) -> Unit,
     onMacChanged: (String) -> Unit,
-    onSave: (String, String) -> Unit
+    onSave: (String) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -363,7 +372,6 @@ fun PrinterConfig(
                         .fillMaxWidth(),
                     value = printerName,
                     onValueChange = { onNameChanged(it) },
-                    placeholder = { Text("Ej. PrinterBT") },
                     singleLine = true
                 )
 
@@ -385,7 +393,7 @@ fun PrinterConfig(
 
                 //Boton de Guardado
                 Button(
-                    onClick = { onSave(printerName, macAddress) },
+                    onClick = { onSave(macAddress) },
                     shape = RoundedCornerShape(4.dp),
                     modifier = Modifier
                         .height(40.dp)

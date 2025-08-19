@@ -6,7 +6,6 @@ import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -19,16 +18,22 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.flow.update
-import mx.diossa.cashbackapp.core.utils.BluetoothBackgroundService
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import mx.diossa.cashbackapp.core.utils.PrinterReconnectWorker
 import mx.diossa.cashbackapp.ui.components.HeaderTitle
 import mx.diossa.cashbackapp.ui.components.PrinterConfig
 import mx.diossa.cashbackapp.ui.components.printerStatus
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun PrinterScreen(navController: NavHostController, viewModel: PrinterViewModel = hiltViewModel()) {
@@ -39,9 +44,9 @@ fun PrinterScreen(navController: NavHostController, viewModel: PrinterViewModel 
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         if (permissions.all { it.value }) {
-            viewModel.checkConnection()
+            // No es necesario llamar a checkConnection, el ViewModel ya observa el estado.
         } else {
-            viewModel._uiState.update { it.copy(error = "Permisos denegados") }
+            // Puedes mostrar un mensaje más explícito al usuario aquí.
         }
     }
 
@@ -59,32 +64,59 @@ fun PrinterScreen(navController: NavHostController, viewModel: PrinterViewModel 
             )
         }
         permissionLauncher.launch(permissions)
-        context.startService(Intent(context, BluetoothBackgroundService::class.java))
+        val reconnectRequest = PeriodicWorkRequestBuilder<PrinterReconnectWorker>(
+            15,
+            TimeUnit.MINUTES
+        ).build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "printerReconnectWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            reconnectRequest
+        )
     }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White
     ) {
-        Column(modifier = Modifier
-            .padding(8.dp)
-            .verticalScroll(rememberScrollState())
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             HeaderTitle()
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp))
-            printerStatus(printerName = uiState.printerName, isConnected = uiState.isConnected)
-            Spacer(modifier= Modifier
-                .fillMaxWidth()
-                .height(18.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            printerStatus(
+                printerName = uiState.printerName,
+                isConnected = uiState.isConnected,
+                onRefresh = {},
+                onPrinttest = {viewModel},
+                message = "Impresión de Prueba Exitosa"
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
             PrinterConfig(
                 printerName = uiState.printerName,
                 macAddress = uiState.macAddress,
                 onNameChanged = { viewModel.onNameChanged(it) },
                 onMacChanged = { viewModel.onMacChanged(it) },
-                onSave = { name, mac -> viewModel.saveConfig(name, mac) }
+                onSave = { mac -> viewModel.saveConfig(mac) }
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
+
+            if (uiState.error != null) {
+                Text(
+                    text = "Error: ${uiState.error}",
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
         }
     }
 }

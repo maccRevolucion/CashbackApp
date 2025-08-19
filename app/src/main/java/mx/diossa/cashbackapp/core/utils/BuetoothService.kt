@@ -166,7 +166,7 @@ class BluetoothService(private val context: Context, private val handler: Handle
             try {
                 mmDevice.createRfcommSocketToServiceRecord(MY_UUID)
             } catch (e: IOException) {
-                Log.e(TAG, "create() failed", e)
+                Log.e(TAG, "createRfcomm failed: ${e.message}", e)
                 null
             }
         }
@@ -178,15 +178,15 @@ class BluetoothService(private val context: Context, private val handler: Handle
             mAdapter.cancelDiscovery()
             mmSocket?.let { socket ->
                 try {
-                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        return
-                    }
+                    Log.d(TAG, "Connecting to device: ${mmDevice.address}")
                     socket.connect()
+                    Log.d(TAG, "Connect success to ${mmDevice.address}")
                 } catch (e: IOException) {
+                    Log.e(TAG, "Connect failed: ${e.message}", e)
                     try {
                         socket.close()
                     } catch (e2: IOException) {
-                        Log.e(TAG, "unable to close() socket during connection failure", e2)
+                        Log.e(TAG, "Close socket failed: ${e2.message}", e2)
                     }
                     connectionFailed()
                     return
@@ -195,6 +195,8 @@ class BluetoothService(private val context: Context, private val handler: Handle
                     mConnectThread = null
                 }
                 connected(socket, mmDevice)
+            } ?: run {
+                connectionFailed()
             }
         }
 
@@ -244,10 +246,12 @@ class BluetoothService(private val context: Context, private val handler: Handle
     }
 
     fun connectionFailed() {
+        Log.d(TAG, "Connection failed")
         setState(STATE_LISTEN)
     }
 
     fun connectionLost() {
+        Log.d(TAG, "Connection lost")
         setState(STATE_LISTEN)
     }
 }
