@@ -6,12 +6,11 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import mx.diossa.cashbackapp.core.utils.Converters
-import mx.diossa.cashbackapp.data.dao.TicketDao
-import mx.diossa.cashbackapp.data.dao.UserDao
-import mx.diossa.cashbackapp.data.entity.TicketEntity
-import mx.diossa.cashbackapp.data.entity.UserEntity
+import mx.diossa.cashbackapp.data.local.dao.TicketDao
+import mx.diossa.cashbackapp.data.local.dao.UserDao
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.UserEntity
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Database(entities = [UserEntity::class, TicketEntity::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase(){

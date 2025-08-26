@@ -47,7 +47,7 @@ fun ConfirmScreen(navController: NavHostController, viewModel: ConfirmViewModel 
                     date = uiState.date
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PrinterInfoCardComponent()
+                PrinterInfoCardComponent(isConnected = true)
             }
             Box(modifier = Modifier
                 .align(Alignment.BottomCenter)

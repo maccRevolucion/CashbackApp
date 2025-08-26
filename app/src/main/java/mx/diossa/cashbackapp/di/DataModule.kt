@@ -1,8 +1,6 @@
 package mx.diossa.cashbackapp.di
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -10,15 +8,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import mx.diossa.cashbackapp.data.AppDatabase
-import mx.diossa.cashbackapp.data.dao.TicketDao
-import mx.diossa.cashbackapp.data.dao.UserDao
-import mx.diossa.cashbackapp.data.datasource.local.TicketLocalDataSource
-import mx.diossa.cashbackapp.data.datasource.local.UserLocalDataSource
+import mx.diossa.cashbackapp.data.local.dao.TicketDao
+import mx.diossa.cashbackapp.data.local.dao.UserDao
+import mx.diossa.cashbackapp.data.local.datasource.TicketLocalDataSource
+import mx.diossa.cashbackapp.data.local.datasource.UserLocalDataSource
 import mx.diossa.cashbackapp.data.repository.TicketRepository
 import mx.diossa.cashbackapp.data.repository.UserRepository
 import javax.inject.Singleton
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
@@ -39,7 +36,7 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideUserLocalDataSource(userDao: UserDao): UserLocalDataSource{
+    fun provideUserLocalDataSource(userDao: UserDao): UserLocalDataSource {
         return UserLocalDataSource(userDao)
     }
 

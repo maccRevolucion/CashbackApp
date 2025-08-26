@@ -53,6 +53,7 @@ class BluetoothService(private val context: Context, private val handler: Handle
             mAcceptThread = AcceptThread()
             mAcceptThread?.start()
         }
+        setState(STATE_LISTEN)
     }
 
     @Synchronized
@@ -65,6 +66,7 @@ class BluetoothService(private val context: Context, private val handler: Handle
         mConnectedThread = null
         mConnectThread = ConnectThread(device)
         mConnectThread?.start()
+        setState(STATE_CONNECTING)
     }
 
     @Synchronized
@@ -83,6 +85,7 @@ class BluetoothService(private val context: Context, private val handler: Handle
         }
         msg.obj = device.name
         handler.sendMessage(msg)
+        setState(STATE_CONNECTED)
     }
 
     @Synchronized
@@ -117,28 +120,47 @@ class BluetoothService(private val context: Context, private val handler: Handle
     }
 
     private inner class AcceptThread : Thread() {
-        private val mmServerSocket: BluetoothServerSocket? by lazy {
+        private var mmServerSocket: BluetoothServerSocket? = null
+        init {
             try {
-                mAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID)
-            } catch (e: IOException) {
-                Log.e(TAG, "listen() failed", e)
-                null
+                if (mAdapter == null || !mAdapter.isEnabled) {
+                    Log.e(TAG, "Bluetooth adapter is null or not enabled - cannot create server socket")
+                } else if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG, "Missing BLUETOOTH_CONNECT permission - cannot create server socket")
+                } else {
+                    mmServerSocket = try {
+                        mAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID)
+                    } catch (e: IOException) {
+                        Log.e(TAG, "listenUsingRfcommWithServiceRecord failed", e)
+                        null
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Unexpected error creating server socket", e)
+                mmServerSocket = null
             }
         }
 
         override fun run() {
+            if (mmServerSocket == null) {
+                Log.w(TAG, "AcceptThread aborting because server socket is null")
+                return
+            }
             var socket: BluetoothSocket?
             while (mState != STATE_CONNECTED) {
-                socket = try {
-                    mmServerSocket?.accept()
+                try {
+                    socket = mmServerSocket?.accept()
                 } catch (e: IOException) {
-                    Log.e(TAG, "accept() failed", e)
-                    null
+                    Log.e(TAG, "accept() failed — stopping AcceptThread", e)
+                    break
                 }
+
                 socket?.also {
                     synchronized(this@BluetoothService) {
                         when (mState) {
-                            STATE_LISTEN, STATE_CONNECTING -> connected(it, it.remoteDevice)
+                            STATE_LISTEN, STATE_CONNECTING -> {
+                                connected(it, it.remoteDevice)
+                            }
                             STATE_NONE, STATE_CONNECTED -> {
                                 try {
                                     it.close()
@@ -149,6 +171,12 @@ class BluetoothService(private val context: Context, private val handler: Handle
                         }
                     }
                 }
+            }
+
+            try {
+                mmServerSocket?.close()
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not close server socket in AcceptThread", e)
             }
         }
 

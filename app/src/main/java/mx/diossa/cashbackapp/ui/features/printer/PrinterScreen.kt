@@ -1,7 +1,6 @@
 package mx.diossa.cashbackapp.ui.features.printer
 
 import android.Manifest
-import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit
 
 @Composable
 fun PrinterScreen(navController: NavHostController, viewModel: PrinterViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -90,9 +90,8 @@ fun PrinterScreen(navController: NavHostController, viewModel: PrinterViewModel 
             printerStatus(
                 printerName = uiState.printerName,
                 isConnected = uiState.isConnected,
-                onRefresh = {},
-                onPrinttest = {viewModel},
-                message = "Impresión de Prueba Exitosa"
+                onRefresh = {viewModel.refreshConnection()},
+                onPrintTest = {viewModel.printTest()}
             )
 
             Spacer(modifier = Modifier.height(24.dp))

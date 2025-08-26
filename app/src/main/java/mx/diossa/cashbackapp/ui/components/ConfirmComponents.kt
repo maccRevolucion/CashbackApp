@@ -70,9 +70,8 @@ fun HeaderTitleComponent(onBack: () -> Unit){
     }
 }
 
-@Preview
 @Composable
-fun PrinterInfoCardComponent(){
+fun PrinterInfoCardComponent(isConnected: Boolean){
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -93,7 +92,11 @@ fun PrinterInfoCardComponent(){
             Text(text = "Detalles de la impresión")
             Spacer(modifier = Modifier.height(8.dp))
             ItemPrinterInfoComponent()
-            ItemPrinterStatusComponent()
+            if(isConnected){
+                ItemPrinterStatusComponent()
+            } else {
+                ItemNoPrinterStatusComponent()
+            }
         }
     }
 }
@@ -159,6 +162,41 @@ fun ItemPrinterStatusComponent(){
     }
 }
 
+@Preview
+@Composable
+fun ItemNoPrinterStatusComponent(){
+    Surface(
+        color = BlueBackgroundComponent,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .height(50.dp)
+    ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)){
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+            ) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    tint = BlueComponent,
+                    imageVector = Icons.Outlined.Print,
+                    contentDescription = "")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    color = BlueComponent,
+                    text = "Impresora no conectada."
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun ItemPrinterInfoComponent(){
     Surface(
@@ -171,7 +209,8 @@ fun ItemPrinterInfoComponent(){
     ) {
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp)){
+            .padding(8.dp)
+            ){
             Text(
                 color = Color.Black,
                 text = "Se generará una nota de venta tipo Obsequio que será impresa automaticamente al confirmar."
@@ -224,7 +263,7 @@ fun ticketDetailsCardComponent(date: String){
             .padding(12.dp)
             .fillMaxWidth()
             .height(100.dp),
-        shape = RectangleShape,
+        shape = RoundedCornerShape(4.dp),
         color = Grey95,
         tonalElevation = 2.dp,
     ) {

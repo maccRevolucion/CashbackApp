@@ -70,6 +70,37 @@ fun HeaderIconComponent(){
         )
     }
 }
+@Composable
+fun HeaderCenterComponent(isAvailable: Boolean){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        if (isAvailable){
+            HeaderIconComponent()
+        } else {
+            HeaderIconNotAvailableComponent()
+        }
+    }
+}
+
+@Composable
+fun HeaderTextComponent(isAvailable: Boolean){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        if (isAvailable){
+            HeadingTextComponent()
+        } else {
+            HeadingTextNotAvailableComponent()
+        }
+    }
+}
 
 @Composable
 fun HeadingTextComponent() {
@@ -233,6 +264,41 @@ fun InfoPrinterComponent(){
     }
 }
 
+@Preview
+@Composable
+fun InfoNoPrinterComponent(){
+    Surface(
+        color = BlueBackgroundComponent,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .height(50.dp)
+    ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)){
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+            ) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    tint = BlueComponent,
+                    imageVector = Icons.Outlined.Print,
+                    contentDescription = "")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    color = BlueComponent,
+                    text = "Impresora no conectada"
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun ButtonsBottomComponent(onSelect: () -> Unit, icon: ImageVector, iconColor: Color, colorTextButton: Color, action: String, colorButton: Color){
     Button(
@@ -376,11 +442,7 @@ fun ProductNotAvailableCardComponent(){
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp,
-            pressedElevation = 3.dp
-        ),
+        )
     ) {
         Column(
             modifier = Modifier

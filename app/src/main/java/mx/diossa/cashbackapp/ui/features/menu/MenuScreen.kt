@@ -21,7 +21,6 @@ import mx.diossa.cashbackapp.ui.components.TextUserHeader
 import mx.diossa.cashbackapp.ui.components.recentActivity
 import mx.diossa.cashbackapp.ui.features.navegation.Screen
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hiltViewModel()){
     val navigationEvent by viewModel.navigationEvent.collectAsStateWithLifecycle()
@@ -47,6 +46,7 @@ fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hilt
                 viewModel.clearNavigationEvent()
             }
             null -> {/* Sin accion */}
+            else -> {}
         }
     }
 

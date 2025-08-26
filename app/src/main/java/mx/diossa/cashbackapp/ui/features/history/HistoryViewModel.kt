@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
 import mx.diossa.cashbackapp.data.repository.TicketRepository
 import mx.diossa.cashbackapp.domain.model.UiStateTicket  // Asume data class UiStateTicket(val query: String = "", val isAscending: Boolean = false, val filteredTickets: List<TicketEntity> = emptyList())
 import javax.inject.Inject

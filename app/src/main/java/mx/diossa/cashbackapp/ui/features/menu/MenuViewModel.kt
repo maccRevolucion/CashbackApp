@@ -1,5 +1,6 @@
 package mx.diossa.cashbackapp.ui.features.menu
 
+import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -10,16 +11,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
 import mx.diossa.cashbackapp.data.repository.TicketRepository
 import java.time.Duration
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class MenuViewModel @Inject constructor(
-    private val ticketRepository: TicketRepository
+    private val ticketRepository: TicketRepository,
+    private val sharedPreferences: SharedPreferences
 ): ViewModel(){
     private val _recentTickets = MutableStateFlow<List<TicketEntity>>(emptyList())
     val recentTickets: StateFlow<List<TicketEntity>> = _recentTickets.asStateFlow()
@@ -66,6 +67,7 @@ class MenuViewModel @Inject constructor(
     sealed class NavigationEvent {
         object NavigateToScanQR : NavigationEvent()
         object NavigateToHistory : NavigationEvent()
+        object NavigateToLogin : NavigationEvent()
     }
 
     private val _navigationEvent = MutableStateFlow<NavigationEvent?>(null)
@@ -80,5 +82,10 @@ class MenuViewModel @Inject constructor(
 
     fun clearNavigationEvent() {
         _navigationEvent.value = null
+    }
+
+    fun onLogoutClicked() {
+        sharedPreferences.edit().putBoolean("is_logged_in", false).apply()
+        _navigationEvent.value = NavigationEvent.NavigateToLogin
     }
 }

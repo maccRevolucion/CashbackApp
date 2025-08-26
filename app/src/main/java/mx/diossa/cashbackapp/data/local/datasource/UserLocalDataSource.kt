@@ -1,7 +1,7 @@
-package mx.diossa.cashbackapp.data.datasource.local
+package mx.diossa.cashbackapp.data.local.datasource
 
-import mx.diossa.cashbackapp.data.dao.UserDao
-import mx.diossa.cashbackapp.data.entity.UserEntity
+import mx.diossa.cashbackapp.data.local.dao.UserDao
+import mx.diossa.cashbackapp.data.local.entity.UserEntity
 import javax.inject.Inject
 
 class UserLocalDataSource @Inject constructor(

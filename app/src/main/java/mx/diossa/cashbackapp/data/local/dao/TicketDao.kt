@@ -1,10 +1,10 @@
-package mx.diossa.cashbackapp.data.dao
+package mx.diossa.cashbackapp.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
 
 @Dao
 interface TicketDao{

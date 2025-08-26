@@ -135,7 +135,7 @@ fun ScanScreen(navController: NavController, viewModel: ScanViewModel = hiltView
     // Navegación tras detectar
     LaunchedEffect(viewModel.uiState.collectAsState().value.scannedText) {
         viewModel.uiState.value.scannedText?.let { code ->
-            if (code == "tickets") navController.navigate("sales")
+            if (code == "tickets") navController.navigate("ticket")
             viewModel.resetState()
         }
     }

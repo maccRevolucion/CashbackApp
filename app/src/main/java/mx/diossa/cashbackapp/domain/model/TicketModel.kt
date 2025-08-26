@@ -1,6 +1,6 @@
 package mx.diossa.cashbackapp.domain.model
 
-import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
 import java.time.LocalDateTime
 
 data class Ticket(

@@ -69,7 +69,7 @@ fun HeaderTicketComponent(onBack: () -> Unit){
 
 
 @Composable
-fun ticketDetails(onSelect: () -> Unit){
+fun ticketDetails(onSelect: () -> Unit, isValid: Boolean){
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -99,19 +99,30 @@ fun ticketDetails(onSelect: () -> Unit){
                 text = "Ticket # 1234"
             )
             Spacer(modifier = Modifier.weight(1f))
-            StatusValidTicketComponent()
+
+            if(isValid){
+                StatusValidTicketComponent()
+            }else{
+                StatusInvalidTicketComponent()
+            }
         }
 
         ItemDetailsComponent(concept = "Fecha:", value = "27/08/2025")
         ItemDetailsComponent(concept = "Vendedor:", value = "Juan Perez")
         ItemAvailableAmountComponent(value = "500.00")
 
-        InfoTicketAvailableComponent()
+        if(isValid){
+            InfoTicketAvailableComponent()
+        }else{
+            InfoTicketInvalidComponent()
+        }
+
         Column(
             modifier = Modifier.padding(8.dp)
         ) {
             Button(
                 onClick = onSelect,
+                enabled = isValid,
                 shape = RoundedCornerShape(4.dp),
                 modifier = Modifier
                     .height(40.dp)
@@ -239,6 +250,7 @@ fun InfoTicketInvalidComponent(){
 }
 
 
+@Preview
 @Composable
 fun StatusValidTicketComponent(){
     Text(
@@ -250,13 +262,14 @@ fun StatusValidTicketComponent(){
     )
 }
 
+@Preview
 @Composable
 fun StatusInvalidTicketComponent(){
     Text(
         text = "Inválido",
         color = Color.White,
         modifier = Modifier
-            .background(RedBackgroundComponent, RoundedCornerShape(8.dp))
+            .background(RedTextComponent, RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 4.dp)
     )
 }

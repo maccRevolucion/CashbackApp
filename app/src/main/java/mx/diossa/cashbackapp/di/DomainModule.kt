@@ -5,11 +5,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import mx.diossa.cashbackapp.data.repository.UserRepository
+import mx.diossa.cashbackapp.domain.ticket.TicketGenerator
 import mx.diossa.cashbackapp.domain.usecases.ValidateLoginUseCase
 
 @Module
 @InstallIn(ViewModelComponent::class)
 object DomainModule {
+    @Provides
+    fun provideTicketGenerator(): TicketGenerator = TicketGenerator()
 
     @Provides
     fun provideValidateLoginUseCase(repository: UserRepository): ValidateLoginUseCase {

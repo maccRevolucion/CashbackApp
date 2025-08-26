@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.diossa.cashbackapp.R
-import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
 import mx.diossa.cashbackapp.ui.features.menu.MenuViewModel
 import mx.diossa.cashbackapp.ui.theme.Grey20
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor

@@ -1,7 +1,5 @@
 package mx.diossa.cashbackapp.ui.features.navegation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -10,7 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import mx.diossa.cashbackapp.ui.features.exchange.products.ProductScreen
 import mx.diossa.cashbackapp.ui.features.history.HistoryScreen
-import mx.diossa.cashbackapp.ui.features.login.LoginScreen
 import mx.diossa.cashbackapp.ui.features.menu.MenuScreen
 import mx.diossa.cashbackapp.ui.features.printer.PrinterScreen
 import mx.diossa.cashbackapp.ui.features.exchange.ticketCheck.TicketCheckScreen
@@ -18,7 +15,6 @@ import mx.diossa.cashbackapp.ui.features.scan.ScanScreen
 import mx.diossa.cashbackapp.ui.features.exchange.confirm.ConfirmScreen
 import mx.diossa.cashbackapp.ui.features.exchange.status.StatusScreen
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(
@@ -26,7 +22,7 @@ fun NavGraph(navController: NavHostController) {
         startDestination = Screen.Home.route
     ) {
         composable(route = Screen.Home.route) { MenuScreen(navController) }
-        composable(route = Screen.Sales.route) { TicketCheckScreen(navController) }
+        composable(route = Screen.TicketCheck.route) { TicketCheckScreen(navController) }
         composable(route = Screen.Scan.route) { ScanScreen(navController) }
         composable(route = Screen.History.route) { HistoryScreen(navController) }
         composable(route = Screen.Printer.route) { PrinterScreen(navController) }
@@ -45,7 +41,7 @@ fun NavGraph(navController: NavHostController) {
 
 sealed class Screen(val route: String) {
     object Home : Screen("menu")
-    object Sales : Screen("sales")
+    object TicketCheck : Screen("ticket")
     object Scan : Screen("scan")
     object History : Screen("history")
     object Printer : Screen("printer")

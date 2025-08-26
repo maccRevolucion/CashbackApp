@@ -33,7 +33,10 @@ fun TicketCheckScreen(navController: NavHostController, viewModel: TicketCheckVi
             Spacer(modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp))
-            ticketDetails(onSelect = {navController.navigate("products")})
+            ticketDetails(
+                onSelect = {navController.navigate("products")},
+                isValid = true
+            )
             Spacer(modifier= Modifier
                 .fillMaxWidth()
                 .height(10.dp))

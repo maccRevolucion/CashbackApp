@@ -1,6 +1,6 @@
 package mx.diossa.cashbackapp.domain.usecases
 
-import mx.diossa.cashbackapp.data.entity.UserEntity
+import mx.diossa.cashbackapp.data.local.entity.UserEntity
 import mx.diossa.cashbackapp.data.repository.UserRepository
 import javax.inject.Inject
 

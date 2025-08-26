@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
@@ -105,7 +103,7 @@ fun BottomNavigationBar(
 @Composable
 fun shouldShowBottomBar(route: String?): Boolean {
     return when (route) {
-        Screen.Sales.route -> false
+        Screen.TicketCheck.route -> false
         Screen.Products.route -> false
         Screen.ConfirmCheck.route -> false
         Screen.StatusExchange.route -> false

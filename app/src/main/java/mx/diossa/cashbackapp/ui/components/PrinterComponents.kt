@@ -28,10 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -224,7 +220,7 @@ fun statusSuccessPrinterComponent(){
 }
 
 @Composable
-fun actionButtonsComponent(onRefresh: ()-> Unit, onPrinttest: (String) -> Unit, message: String){
+fun actionButtonsComponent(onRefresh: ()-> Unit, onPrintTest: () -> Unit){
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -251,9 +247,10 @@ fun actionButtonsComponent(onRefresh: ()-> Unit, onPrinttest: (String) -> Unit, 
             )
         }
 
+        Spacer(modifier = Modifier.width(4.dp))
 
         Button(
-            onClick = { onPrinttest(message) },
+            onClick = { onPrintTest() },
             shape = RoundedCornerShape(4.dp),
             modifier = Modifier
                 .height( 40.dp ),
@@ -270,7 +267,7 @@ fun actionButtonsComponent(onRefresh: ()-> Unit, onPrinttest: (String) -> Unit, 
             Text(
                 text = "Imprimir Prueba",
                 color = Color.White,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 4.dp)
             )
         }
     }
@@ -281,8 +278,7 @@ fun printerStatus(
     printerName: String,
     isConnected: Boolean,
     onRefresh: () -> Unit,
-    onPrinttest: (String) -> Unit,
-    message: String
+    onPrintTest: () -> Unit
 ){
     Card(
         modifier = Modifier
@@ -318,8 +314,7 @@ fun printerStatus(
         PrinterDataComponent(printerName, isConnected)
         actionButtonsComponent(
             onRefresh = onRefresh,
-            onPrinttest = onPrinttest,
-            message = message
+            onPrintTest = onPrintTest,
         )
     }
 }

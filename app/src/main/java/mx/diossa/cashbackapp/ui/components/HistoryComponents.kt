@@ -38,7 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
 import mx.diossa.cashbackapp.domain.model.Ticket
 import mx.diossa.cashbackapp.ui.features.history.HistoryViewModel
 import mx.diossa.cashbackapp.ui.theme.GreenCompletedComponent

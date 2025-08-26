@@ -1,10 +1,10 @@
-package mx.diossa.cashbackapp.data.datasource.local
+package mx.diossa.cashbackapp.data.local.datasource
 
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import mx.diossa.cashbackapp.data.dao.TicketDao
-import mx.diossa.cashbackapp.data.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.dao.TicketDao
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject

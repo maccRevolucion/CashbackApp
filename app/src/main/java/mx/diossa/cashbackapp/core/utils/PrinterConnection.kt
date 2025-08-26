@@ -3,6 +3,7 @@ package mx.diossa.cashbackapp.core.utils
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler

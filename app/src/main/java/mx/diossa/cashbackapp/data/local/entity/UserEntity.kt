@@ -1,4 +1,4 @@
-package mx.diossa.cashbackapp.data.entity
+package mx.diossa.cashbackapp.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

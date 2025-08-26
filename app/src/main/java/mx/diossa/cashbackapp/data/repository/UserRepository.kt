@@ -1,7 +1,7 @@
 package mx.diossa.cashbackapp.data.repository
 
-import mx.diossa.cashbackapp.data.datasource.local.UserLocalDataSource
-import mx.diossa.cashbackapp.data.entity.UserEntity
+import mx.diossa.cashbackapp.data.local.datasource.UserLocalDataSource
+import mx.diossa.cashbackapp.data.local.entity.UserEntity
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
