@@ -31,14 +31,20 @@ class MenuViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _employeeName = MutableStateFlow("")
+    val employeeName: StateFlow<String> = _employeeName.asStateFlow()
+
     init {
+        _employeeName.value = sharedPreferences.getString("employee_name", "Empleado") ?: "Empleado"
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
-                val tickets = ticketRepository.getRecentComplete()
+                val startOfToday = LocalDateTime.now().toLocalDate().atStartOfDay()
+                val tickets = ticketRepository.getRecentCompleteForToday(startOfToday)
+
                 _recentTickets.value = tickets
-                Log.d("MenuVM", "Fetched ${tickets.size} recent tickets")
+                Log.d("MenuVM", "Fetched ${tickets.size} recent tickets for today")
             } catch (e: Exception) {
                 _error.value = "Error fetching tickets: ${e.message}"
                 Log.e("MenuVM", "Error: ${e.message}")
@@ -85,7 +91,12 @@ class MenuViewModel @Inject constructor(
     }
 
     fun onLogoutClicked() {
-        sharedPreferences.edit().putBoolean("is_logged_in", false).apply()
+        sharedPreferences.edit()
+            .remove("is_logged_in")
+            .remove("access_token")
+            .remove("employee_name")
+            .apply()
+
         _navigationEvent.value = NavigationEvent.NavigateToLogin
     }
 }

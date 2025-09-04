@@ -1,12 +1,9 @@
 package mx.diossa.cashbackapp.ui.features.exchange.status
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -15,31 +12,32 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import mx.diossa.cashbackapp.ui.components.ButtonsBottomComponent
 import mx.diossa.cashbackapp.ui.components.HeaderCenterComponent
-import mx.diossa.cashbackapp.ui.components.HeaderIconComponent
 import mx.diossa.cashbackapp.ui.components.HeaderTextComponent
-import mx.diossa.cashbackapp.ui.components.HeadingTextComponent
 import mx.diossa.cashbackapp.ui.components.InfoCardNotInventoryComponent
-import mx.diossa.cashbackapp.ui.components.InfoNoPrinterComponent
 import mx.diossa.cashbackapp.ui.components.InfoPrinterComponent
 import mx.diossa.cashbackapp.ui.components.WarningTextComponent
 import mx.diossa.cashbackapp.ui.components.exchangeDetails
+import mx.diossa.cashbackapp.ui.features.exchange.ExchangeViewModel
 import mx.diossa.cashbackapp.ui.theme.GreyBackgroundComponent
-import mx.diossa.cashbackapp.ui.theme.PrimaryColor
 import mx.diossa.cashbackapp.ui.theme.TextGreyComponent
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
-fun StatusScreen(navController: NavHostController, viewModel: StatusViewModel = hiltViewModel()){
-    val isAvailable = false
-    val isConnected = false
+fun StatusScreen(navController: NavHostController, exchangeViewModel: ExchangeViewModel, viewModel: StatusViewModel = hiltViewModel(), ){
+    val uiState = exchangeViewModel.statusState.collectAsState().value
+
+    if (uiState == null) return
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -55,15 +53,27 @@ fun StatusScreen(navController: NavHostController, viewModel: StatusViewModel = 
                     .align(Alignment.Center)
             ){
 
-                HeaderCenterComponent(isAvailable)
-                HeaderTextComponent(isAvailable)
+                HeaderCenterComponent(uiState.isAvailable)
+                HeaderTextComponent(uiState.isAvailable)
                 Spacer(modifier = Modifier.height(10.dp))
-                if(isAvailable){ exchangeDetails() } else { InfoCardNotInventoryComponent() }
+                if(uiState.isAvailable){ exchangeDetails(
+                    idTicket = uiState.idTicket ?: 0,
+                    date = uiState.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())),
+                    time = uiState.date.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                    balance = uiState.balance ?: 0
+                ) } else {
+                    InfoCardNotInventoryComponent()
+                }
+
                 Spacer(modifier = Modifier.height(6.dp))
-                if(isConnected) { InfoPrinterComponent() }
-                if(!isAvailable) WarningTextComponent()
+
+                if(uiState.isPrinterConnected) { InfoPrinterComponent() }
+
+                if(!uiState.isAvailable) WarningTextComponent()
+
                 Spacer(modifier = Modifier.height(6.dp))
-                if(isAvailable) { bottomButtonsSucess(navController) } else { bottomButtonsFailed(navController) }
+
+                if(uiState.isAvailable) { bottomButtonsSucess(navController, viewModel) } else { bottomButtonsFailed(navController) }
             }
         }
     }
@@ -71,9 +81,9 @@ fun StatusScreen(navController: NavHostController, viewModel: StatusViewModel = 
 
 
 @Composable
-fun bottomButtonsSucess(navController: NavHostController){
+fun bottomButtonsSucess(navController: NavHostController, viewModel: StatusViewModel){
     ButtonsBottomComponent(
-        onSelect = { /*TODO*/ },
+        onSelect = { viewModel.reprintTicket() },
         icon = Icons.Outlined.Print,
         iconColor = Color.White,
         colorTextButton = Color.White,

@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import mx.diossa.cashbackapp.ui.components.ButtomComponent
+import androidx.lifecycle.viewmodel.compose.viewModel
+import mx.diossa.cashbackapp.ui.components.buttonComponent
 import mx.diossa.cashbackapp.ui.components.HeadingTextComponent
 import mx.diossa.cashbackapp.ui.components.MyTextFieldComponent
 import mx.diossa.cashbackapp.ui.components.NormalTextComponent
@@ -56,10 +56,10 @@ fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = hiltView
                 username = uiState.value.username,
                 password = uiState.value.password,
                 onUsernameChange = {viewModel.onUsernameChanged(it)},
-                onPasswordChange = {viewModel.onPasswordChanged(it)}
+                onPasswordChange = {viewModel.onPasswordChanged(it)},
+                clearTextQuery = {viewModel.clearTextQuery(it)}
             )
-            ButtomComponent(
-                enable = uiState.value.isButtonEnabled,
+            buttonComponent(
                 onClick = {viewModel.onLoginClicked()},
                 isLoading = uiState.value.isLoading
             )
@@ -80,14 +80,16 @@ fun TextFieldsLogin(
     username: String,
     password: String,
     onUsernameChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
+    onPasswordChange: (String) -> Unit,
+    clearTextQuery: (String) -> Unit
 ) {
     Column {
         MyTextFieldComponent(
             textValue = username,
             onValueChange = onUsernameChange,
             labelValue = "Usuario",
-            icon = Icons.Outlined.Person
+            icon = Icons.Outlined.Person,
+            clearTextQuery = clearTextQuery
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -96,7 +98,7 @@ fun TextFieldsLogin(
             value = password,
             onValueChange = onPasswordChange,
             labelValue = "Contraseña",
-            icon = Icons.Outlined.Lock
+            icon = Icons.Outlined.Lock,
         )
     }
 }

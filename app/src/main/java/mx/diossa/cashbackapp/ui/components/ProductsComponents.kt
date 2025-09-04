@@ -71,7 +71,7 @@ fun HeaderTitleProductComponent(onBack: () -> Unit){
 
 @Composable
 fun inforCard(
-    balance: Double,
+    balance: Int,
     selected: Double,
     remaining: Double
 ) {
@@ -112,7 +112,7 @@ fun inforCard(
                             fontStyle = FontStyle.Normal
                         ),
                         color = Color.Black,
-                        text = "$${balance}"
+                        text = "$${balance}.00"
                     )
                 }
 

@@ -15,15 +15,16 @@ import mx.diossa.cashbackapp.ui.features.navegation.MainScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val sharedPreferences = getSharedPreferences("cashback_prefs", Context.MODE_PRIVATE)
-            val isLoggedIn = remember { mutableStateOf(sharedPreferences.getBoolean("is_logged_in", false)) }
+            val sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE)
+            val isLoggedIn = remember {
+                mutableStateOf(sharedPreferences.getBoolean("is_logged_in", false))
+            }
 
             if(isLoggedIn.value){
-                MainScreen()
+                MainScreen(onLogout = { isLoggedIn.value = false })
             } else{
                 LoginScreen(onLoginSuccess = { isLoggedIn.value = true })
             }

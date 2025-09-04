@@ -48,6 +48,7 @@ import mx.diossa.cashbackapp.ui.theme.RedBackgroundComponent
 import mx.diossa.cashbackapp.ui.theme.RedTextComponent
 import mx.diossa.cashbackapp.ui.theme.TextColor
 import mx.diossa.cashbackapp.ui.theme.TextGreyComponent
+import java.time.LocalDateTime
 
 
 @Preview
@@ -138,9 +139,13 @@ fun HeadingTextComponent() {
     }
 }
 
-@Preview
 @Composable
-fun exchangeDetails(){
+fun exchangeDetails(
+    idTicket: Int,
+    date: String,
+    time: String,
+    balance: Int
+){
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -177,10 +182,10 @@ fun exchangeDetails(){
                     .padding(horizontal = 12.dp, vertical = 4.dp)
             )
         }
-        ItemListExchangeDetailsComponent(concept = "Ticket Original:", value = "T-12345")
-        ItemListExchangeDetailsComponent(concept = "Referencia:", value = "R-77386")
-        ItemListExchangeDetailsComponent(concept = "Fecha:", value = "26/07/2025")
-        ItemListExchangeDetailsComponent(concept = "Hora:", value = "12:12:24 p.m.")
+        ItemListExchangeDetailsComponent(concept = "Ticket Original:", value = idTicket.toString())
+        ItemListExchangeDetailsComponent(concept = "Referencia:", value = "R-00${idTicket}")
+        ItemListExchangeDetailsComponent(concept = "Fecha:", value = date)
+        ItemListExchangeDetailsComponent(concept = "Hora:", value = time)
 
         Row(
             modifier = Modifier
@@ -198,7 +203,7 @@ fun exchangeDetails(){
                     fontWeight = FontWeight.Bold,
                     fontStyle = FontStyle.Normal
                 ),
-                text = "$500.00",
+                text = "$$balance.00",
                 color = PrimaryColor,
             )
         }

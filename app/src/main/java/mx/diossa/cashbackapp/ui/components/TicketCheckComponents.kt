@@ -32,6 +32,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +43,7 @@ import mx.diossa.cashbackapp.ui.theme.PrimaryColor
 import mx.diossa.cashbackapp.ui.theme.RedBackgroundComponent
 import mx.diossa.cashbackapp.ui.theme.RedTextComponent
 import mx.diossa.cashbackapp.ui.theme.TextColor
+import java.util.Date
 
 @Composable
 fun HeaderTicketComponent(onBack: () -> Unit){
@@ -69,7 +71,14 @@ fun HeaderTicketComponent(onBack: () -> Unit){
 
 
 @Composable
-fun ticketDetails(onSelect: () -> Unit, isValid: Boolean){
+fun ticketDetails(
+    ticketNumber: Int,
+    date: String,
+    sellerName: String,
+    availableAmount: Int,
+    onSelect: () -> Unit,
+    isValid: Boolean
+){
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -96,7 +105,7 @@ fun ticketDetails(onSelect: () -> Unit, isValid: Boolean){
                     fontStyle = FontStyle.Normal
                 ),
                 color = TextColor,
-                text = "Ticket # 1234"
+                text = "Ticket #${ticketNumber}"
             )
             Spacer(modifier = Modifier.weight(1f))
 
@@ -107,9 +116,9 @@ fun ticketDetails(onSelect: () -> Unit, isValid: Boolean){
             }
         }
 
-        ItemDetailsComponent(concept = "Fecha:", value = "27/08/2025")
-        ItemDetailsComponent(concept = "Vendedor:", value = "Juan Perez")
-        ItemAvailableAmountComponent(value = "500.00")
+        ItemDetailsComponent(concept = "Fecha:", value = date)
+        ItemDetailsComponent(concept = "Vendedor:", value = sellerName)
+        ItemAvailableAmountComponent(value = "${availableAmount}.00")
 
         if(isValid){
             InfoTicketAvailableComponent()
@@ -125,7 +134,7 @@ fun ticketDetails(onSelect: () -> Unit, isValid: Boolean){
                 enabled = isValid,
                 shape = RoundedCornerShape(4.dp),
                 modifier = Modifier
-                    .height(40.dp)
+                    .height(50.dp)
                     .fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red
@@ -286,7 +295,14 @@ fun ItemDetailsComponent(concept: String, value: String){
             color = TextGreyComponent,
             text = concept
         )
-        Text(text = value)
+        Text(
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            text = value,
+            style = TextStyle(
+                fontSize = 13.sp
+            )
+        )
     }
 }
 

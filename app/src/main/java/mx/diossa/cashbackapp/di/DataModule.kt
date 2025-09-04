@@ -12,6 +12,7 @@ import mx.diossa.cashbackapp.data.local.dao.TicketDao
 import mx.diossa.cashbackapp.data.local.dao.UserDao
 import mx.diossa.cashbackapp.data.local.datasource.TicketLocalDataSource
 import mx.diossa.cashbackapp.data.local.datasource.UserLocalDataSource
+import mx.diossa.cashbackapp.data.remote.datasource.RemoteDataSource
 import mx.diossa.cashbackapp.data.repository.TicketRepository
 import mx.diossa.cashbackapp.data.repository.UserRepository
 import javax.inject.Singleton
@@ -42,8 +43,8 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(localDataSource: UserLocalDataSource): UserRepository{
-        return UserRepository(localDataSource)
+    fun provideUserRepository(localDataSource: UserLocalDataSource, remoteDataSource: RemoteDataSource): UserRepository{
+        return UserRepository(localDataSource, remoteDataSource)
     }
 
     @Provides

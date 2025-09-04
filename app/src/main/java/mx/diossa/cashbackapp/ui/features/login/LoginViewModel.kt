@@ -3,14 +3,12 @@ package mx.diossa.cashbackapp.ui.features.login
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import mx.diossa.cashbackapp.data.repository.UserRepository
 import mx.diossa.cashbackapp.domain.model.LoginUserModel
 import mx.diossa.cashbackapp.domain.usecases.ValidateLoginUseCase
 import javax.inject.Inject
@@ -22,6 +20,7 @@ class LoginViewModel @Inject constructor(
 ): ViewModel() {
     private val _uiState = MutableStateFlow(LoginUserModel())
     val uiState: StateFlow<LoginUserModel> = _uiState.asStateFlow()
+
     private val _navigationEvent = MutableStateFlow<NavigationEvent?>(null)
     val navigationEvent: StateFlow<NavigationEvent?> = _navigationEvent.asStateFlow()
 
@@ -56,19 +55,35 @@ class LoginViewModel @Inject constructor(
     fun onLoginClicked() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = validateLoginUseCase(_uiState.value.username, _uiState.value.password)
-            if (result.isSuccess) {
-                sharedPreferences.edit().putBoolean("is_logged_in", true).apply()
-                _uiState.update { it.copy(isLoading = false, errorMessage = null) }
+            val result = validateLoginUseCase(_uiState.value.username.trim(), _uiState.value.password.trim())
+
+            result.onSuccess { loginResult ->
+                sharedPreferences.edit()
+                    .putBoolean("is_logged_in", true)
+                    .putString("access_token", loginResult.access)
+                    .putString("employee_name", loginResult.employeeName)
+                    .apply()
+
+                _uiState.update { it.copy(isLoading = false) }
                 _navigationEvent.value = NavigationEvent.NavigateToMenu
-            } else {
+
+            }.onFailure { exception ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = result.exceptionOrNull()?.message
+                        errorMessage = exception.message ?: "Credenciales inválidas"
                     )
                 }
             }
+        }
+    }
+
+    fun clearTextQuery(query: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                username = "",
+                isButtonEnabled = isFormValid("", currentState.password)
+            )
         }
     }
 

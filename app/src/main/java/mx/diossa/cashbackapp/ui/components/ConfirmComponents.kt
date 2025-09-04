@@ -20,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -29,14 +28,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import mx.diossa.cashbackapp.domain.model.SelectedProduct
+import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
+import mx.diossa.cashbackapp.ui.features.exchange.confirm.ConfirmViewModel
 import mx.diossa.cashbackapp.ui.theme.BlueBackgroundComponent
 import mx.diossa.cashbackapp.ui.theme.BlueComponent
 import mx.diossa.cashbackapp.ui.theme.Grey95
@@ -221,9 +221,9 @@ fun ItemPrinterInfoComponent(){
 
 @Composable
 fun ticketResume(
-    selectedProducts: List<SelectedProduct>,
+    data: CashbackDetail,
+    selectedProducts: List<ConfirmViewModel.UiSelectedProduct>,
     total: Double,
-    date: String
 ) {
     Card(
         modifier = Modifier
@@ -243,12 +243,16 @@ fun ticketResume(
         ) {
             Text(text = "Resumen del Canje")
             Spacer(modifier = Modifier.height(8.dp))
-            ticketDetailsCardComponent(date = date)
-            selectedProducts.forEach { product ->
+            ticketDetailsCardComponent(
+                balance = data.cashbackValue,
+                sellerName = data.nameEmployee,
+                date = data.cashbackDate
+            )
+            selectedProducts.forEach { item ->
                 ItemProductSelectedComponent(
-                    name = product.name,
-                    price = product.price,
-                    quantity = product.quantity
+                    name = item.product.name,
+                    price = item.product.price,
+                    quantity = item.quantity
                 )
             }
             ItemTotalComponent(total = total)
@@ -257,7 +261,11 @@ fun ticketResume(
 }
 
 @Composable
-fun ticketDetailsCardComponent(date: String){
+fun ticketDetailsCardComponent(
+    balance: Int,
+    sellerName: String,
+    date: String
+){
     Surface(
         modifier = Modifier
             .padding(12.dp)
@@ -268,8 +276,8 @@ fun ticketDetailsCardComponent(date: String){
         tonalElevation = 2.dp,
     ) {
         Column {
-            ItemTicketDetailsComponent(concept = "Saldo:", value = "T-12345")
-            ItemTicketDetailsComponent(concept = "Vendedor:", value = "Juan Peréz")
+            ItemTicketDetailsComponent(concept = "Saldo:", value = "$$balance.00")
+            ItemTicketDetailsComponent(concept = "Vendedor:", value = sellerName)
             ItemTicketDetailsComponent(concept = "Fecha:", value = date)
         }
     }
@@ -310,7 +318,9 @@ fun ItemProductSelectedComponent(
                         fontStyle = FontStyle.Normal
                     ),
                     color = Color.Black,
-                    text = name
+                    text = name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(7.dp))
                 Text(
@@ -401,11 +411,13 @@ fun ItemTicketDetailsComponent(concept: String, value: String){
         )
         Text(
             style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
                 fontStyle = FontStyle.Normal
             ),
             color = Color.Black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             text = value
         )
     }

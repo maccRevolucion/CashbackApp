@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.outlined.ShowChart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,53 +52,72 @@ import mx.diossa.cashbackapp.ui.theme.PrimaryColor
 import mx.diossa.cashbackapp.ui.theme.SecondaryColor
 import mx.diossa.cashbackapp.ui.theme.TextColor
 
+// En: MenuComponents.kt
+
 @Composable
-fun TextUserHeader(employeeName: String) {
-    Row (
+fun TextUserHeader(
+    employeeName: String,
+    onProfileClick: () -> Unit,
+    showLogoutMenu: Boolean,
+    onDismissMenu: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    Box(
         modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-        ){
-        Column {
-            Text(
-                text = "Bienvenido",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Normal
-                ),
-                color = TextColor,
-                textAlign = TextAlign.Start
-            )
-            Text(
-                text = employeeName,
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontStyle = FontStyle.Normal
-                ),
-                color = TextColor,
-                textAlign = TextAlign.Start
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Bienvenido",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = TextColor
+                )
+                Text(
+                    text = employeeName,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    color = TextColor
+                )
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.dog),
+                contentDescription = "Perfil",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(45.dp)
+                    .clip(CircleShape)
+                    .clickable { onProfileClick() }
             )
         }
-        Spacer(modifier = Modifier.weight(1f))
-        Image(
-            painter = painterResource(id = R.drawable.dog),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.CenterEnd,
-            modifier = Modifier
-                .size(45.dp)
-                .clip(CircleShape)
-        )
+        DropdownMenu(
+            expanded = showLogoutMenu,
+            onDismissRequest = { onDismissMenu() },
+            modifier = Modifier.align(Alignment.TopEnd)
+        ) {
+            DropdownMenuItem(
+                text = { Text("Cerrar Sesión") },
+                onClick = { onLogoutClick() }
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Preview_Header(){
-    TextUserHeader(employeeName = "Cesar Covantes")
+    TextUserHeader(employeeName = "Cesar Covantes", onProfileClick = {}, onDismissMenu = {}, onLogoutClick = {}, showLogoutMenu = false)
 }
 @Preview
 @Composable
@@ -235,7 +256,6 @@ fun ItemButtons(action: String, subtitle: String, icon: ImageVector,onClick: () 
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun recentActivity(tickets: List<TicketEntity>, viewModel: MenuViewModel) {
     Card(
@@ -340,7 +360,7 @@ fun ItemRecentComponent(ticketId: String, timePassed: String, cashback: String, 
                 color = Color.Red,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
-                text = "$${cashback}"
+                text = "$${cashback}.00"
             )
         }
     }

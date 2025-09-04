@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
@@ -40,8 +41,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import mx.diossa.cashbackapp.ui.theme.AccentColor
 import mx.diossa.cashbackapp.ui.theme.BgColor
 import mx.diossa.cashbackapp.ui.theme.Primary
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor
@@ -87,7 +86,8 @@ fun MyTextFieldComponent(
     textValue: String,
     onValueChange: (String) -> Unit,
     labelValue: String,
-    icon: ImageVector
+    icon: ImageVector,
+    clearTextQuery: (String) -> Unit
 ) {
     OutlinedTextField(
         label = {
@@ -106,6 +106,21 @@ fun MyTextFieldComponent(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         singleLine = true,
+        trailingIcon = {
+            if(textValue.isNotEmpty()){
+                IconButton(
+                    onClick = {
+                        clearTextQuery("")
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Clear text",
+                        tint = Color.Gray
+                    )
+                }
+            }
+        },
         leadingIcon = {
             Icon(
                 imageVector = icon,
@@ -167,8 +182,7 @@ fun PasswordTextFieldComponent(
 
 
 @Composable
-fun ButtomComponent(
-    enable: Boolean,
+fun buttonComponent(
     onClick: ()->Unit,
     isLoading: Boolean
 ) {

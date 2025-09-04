@@ -26,27 +26,31 @@ class TicketGenerator @Inject constructor() {
     }
 
     fun buildRedemptionTicket(
-        storeName: String,
         items: List<RedemptionItem>,
         cashback: Double,
         subtotal: Double,
+        vendor: String,
         total: Double
     ): String = buildString {
         val date = LocalDateTime.now().format(formatter)
         appendLine("                             ")
-        appendLine("                             ")
-        appendLine("*** $storeName - CANJE CASHBACK ***")
+        appendLine("             DSD             ")
+        appendLine("******* CANJE CASHBACK *******")
         appendLine("Fecha: $date")
+        //appendLine("Canjeador: ")
+        appendLine("Vendedor: $vendor")
+        appendLine("                             ")
         appendLine("-----------------------------")
-        appendLine("Item          Cant.  Precio  Subtotal")
+        appendLine("Producto    Cant.  Precio  Sub.")
         items.forEach { item ->
             val itemSubtotal = item.quantity * item.price
-            appendLine("${item.name.padEnd(12)} ${item.quantity.toString().padEnd(5)} $${item.price.toString().padEnd(6)} $$itemSubtotal")
+            appendLine("${item.name.padEnd(12)} ${item.quantity.toString().padEnd(3)} $${item.price.toString().padEnd(4)} $$itemSubtotal")
         }
-        appendLine("-----------------------------")
+        appendLine("                             ")
+        appendLine("-----------DESGLOSE----------")
         appendLine("Subtotal: $$subtotal")
-        appendLine("Cashback aplicado: -$$cashback")
-        appendLine("Total: $$total")
+        appendLine("Cashback restante: $$cashback")
+        appendLine("Total cashback usado: $$total")
         appendLine("-----------------------------")
         appendLine("Gracias por tu canje!")
         appendLine("Vuelve pronto :)")

@@ -15,6 +15,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,19 +33,25 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import mx.diossa.cashbackapp.ui.components.QrInstructions
+import mx.diossa.cashbackapp.ui.features.exchange.ExchangeViewModel
+import mx.diossa.cashbackapp.ui.features.navegation.Screen
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalGetImage::class)
 @Composable
-fun ScanScreen(navController: NavController, viewModel: ScanViewModel = hiltViewModel()) {
+fun ScanScreen(navController: NavController, viewModel: ScanViewModel = hiltViewModel(), exchangeViewModel: ExchangeViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val cameraExecutor = remember { ContextCompat.getMainExecutor(context) }
+    val validationState by viewModel.validationState.collectAsState()
 
     var hasPermission by remember { mutableStateOf(false) }
 
@@ -52,6 +59,14 @@ fun ScanScreen(navController: NavController, viewModel: ScanViewModel = hiltView
     val permLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted -> hasPermission = granted }
+
+    LaunchedEffect(validationState) {
+        (validationState as? QrValidationState.Success)?.let { successState ->
+            exchangeViewModel.setTicketDetails(successState.details)
+            navController.navigate(Screen.Products.route)
+            viewModel.resetState()
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
@@ -121,6 +136,38 @@ fun ScanScreen(navController: NavController, viewModel: ScanViewModel = hiltView
                     previewView
                 }
             )
+            when (val state = validationState) {
+                is QrValidationState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is QrValidationState.Error -> {
+                    QrInstructions(
+                        state.message,
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                    LaunchedEffect(state) {
+                        kotlinx.coroutines.delay(3000)
+                        viewModel.resetState()
+                    }
+                }
+                is QrValidationState.Success -> {
+                    LaunchedEffect(state) {
+                        val cashbackJson = Gson().toJson(state.details)
+                        val encodedJson = URLEncoder.encode(cashbackJson, StandardCharsets.UTF_8.toString())
+                        navController.navigate("ticket/$encodedJson/${state.isValid}")
+                        viewModel.resetState()
+                    }
+                }
+                QrValidationState.Idle -> {
+                    QrInstructions(
+                        "Enfoca el código QR dentro del recuadro",
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .background(Color.Black.copy(alpha = 0.4f))
+                            .padding(8.dp)
+                    )
+                }
+            }
         }
 
         QrInstructions(
@@ -132,11 +179,4 @@ fun ScanScreen(navController: NavController, viewModel: ScanViewModel = hiltView
         )
     }
 
-    // Navegación tras detectar
-    LaunchedEffect(viewModel.uiState.collectAsState().value.scannedText) {
-        viewModel.uiState.value.scannedText?.let { code ->
-            if (code == "tickets") navController.navigate("ticket")
-            viewModel.resetState()
-        }
-    }
 }

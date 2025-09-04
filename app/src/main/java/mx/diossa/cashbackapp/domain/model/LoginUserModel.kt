@@ -7,3 +7,8 @@ data class LoginUserModel(
     val errorMessage: String? = null,
     val isLoading: Boolean = false
 )
+
+data class UserModel(
+    val username: String,
+    val password: String
+)

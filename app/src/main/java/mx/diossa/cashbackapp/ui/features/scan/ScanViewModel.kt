@@ -1,70 +1,59 @@
 package mx.diossa.cashbackapp.ui.features.scan
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions
-import com.google.mlkit.vision.barcode.BarcodeScanning
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
+import mx.diossa.cashbackapp.domain.usecases.GetCashbackDetailsUseCase
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+sealed interface QrValidationState {
+    object Idle : QrValidationState
+    object Loading : QrValidationState
+    data class Success(val details: CashbackDetail, val isValid: Boolean) : QrValidationState
+    data class Error(val message: String) : QrValidationState
+}
+
 @HiltViewModel
-class ScanViewModel @Inject constructor() : ViewModel() {
+class ScanViewModel @Inject constructor(
+    private val getCashbackDetailsUseCase: GetCashbackDetailsUseCase
+) : ViewModel() {
 
-    data class ScanUiState(
-        val isScanning: Boolean = false,
-        val scannedText: String? = null,
-        val errorMessage: String? = null,
-        val hasCameraPermission: Boolean = false
-    )
+    private val _validationState = MutableStateFlow<QrValidationState>(QrValidationState.Idle)
+    val validationState = _validationState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(ScanUiState())
-    val uiState = _uiState.asStateFlow()
+    fun processScannedCode(idCashback: String) {
+        if (_validationState.value is QrValidationState.Loading) return
 
-    fun checkCameraPermission(context: Context): Boolean {
-        val hasPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-        _uiState.value = _uiState.value.copy(hasCameraPermission = hasPermission)
-        return hasPermission
-    }
-
-    fun requestCameraPermission() {
-        _uiState.value = _uiState.value.copy(isScanning = true)
-    }
-
-    fun onPermissionResult(granted: Boolean) {
-        _uiState.value = _uiState.value.copy(
-            hasCameraPermission = granted,
-            isScanning = granted,
-            errorMessage = if (!granted) "Permiso de cámara denegado" else null
-        )
-    }
-
-    fun processScannedCode(code: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(scannedText = code)
-            // Decidir la acción basada en el código
-            if (code == "ventas") {
-                // Navegación a SalesScreen sería manejada por ScanScreen
-            } else {
-                _uiState.value = _uiState.value.copy(errorMessage = "QR no válido, escanea de nuevo")
+            _validationState.value = QrValidationState.Loading
+            getCashbackDetailsUseCase(idCashback.toInt()).onSuccess { details ->
+                val isValid = isCashbackDateToday(details.cashbackDate)
+                _validationState.value = QrValidationState.Success(details, isValid)
+            }.onFailure { error ->
+                _validationState.value = QrValidationState.Error(error.message ?: "ID de Cashback no válido")
             }
         }
     }
 
-    fun resetState() {
-        _uiState.value = _uiState.value.copy(
-            scannedText = null,
-            errorMessage = null
-        )
+    private fun isCashbackDateToday(dateString: String?): Boolean {
+        if (dateString == null) return false
+
+        return try {
+            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+            val cashbackDate = LocalDate.parse(dateString, formatter)
+            cashbackDate.isEqual(LocalDate.now())
+        } catch (e: Exception) {
+            false
+        }
     }
 
+    fun resetState() {
+        _validationState.value = QrValidationState.Idle
+    }
 }

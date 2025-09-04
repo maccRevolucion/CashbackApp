@@ -1,37 +1,83 @@
 package mx.diossa.cashbackapp.ui.features.exchange.products
 
+
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.Navigation
+import com.google.gson.Gson
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import mx.diossa.cashbackapp.domain.model.Product
-import mx.diossa.cashbackapp.domain.model.UiStateProduct
+import mx.diossa.cashbackapp.domain.model.SelectedProduct
+import mx.diossa.cashbackapp.domain.model.Ticket
+import mx.diossa.cashbackapp.domain.usecases.GetInventoryUseCase
+import mx.diossa.cashbackapp.ui.features.exchange.ExchangeViewModel
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
-class ProductsViewModel @Inject constructor(): ViewModel(){
-    private val allProducts = listOf(
-        Product("A1", "Producto A", 30.00),
-        Product("B1", "Producto B", 250.00),
-        Product("C1", "Producto C", 150.00)
-        // Agrega más productos si es necesario
-    )
+data class UiStateProduct(
+    val isLoading: Boolean = true,
+    val totalBalance: Int = 0,
+    val ticketData: Ticket? = null,
+    val allProducts: List<Product> = emptyList(),
+    val filteredProducts: List<Product> = emptyList(),
+    val selectedQuantities: Map<Product, Int> = emptyMap(),
+    val query: String = "",
+    val error: String? = null,
+    val showSelectionAlert: Boolean = false
+)
 
-    private val _uiState = MutableStateFlow(UiStateProduct(filteredProducts = allProducts))
+sealed class ProductNavigationEvent {
+    object NavigateToConfirm: ProductNavigationEvent()
+}
+
+@HiltViewModel
+class ProductsViewModel @Inject constructor(
+    private val getInventoryUseCase: GetInventoryUseCase,
+    //private val exchangeViewModel: ExchangeViewModel,
+    savedStateHandle: SavedStateHandle
+): ViewModel() {
+    private val _uiState = MutableStateFlow(UiStateProduct())
     val uiState: StateFlow<UiStateProduct> = _uiState.asStateFlow()
 
-    fun getSelectedAmount(): Double {
-        return _uiState.value.selectedQuantities.entries.sumOf { entry ->
-            entry.key.price * entry.value
+    private val _navigationEvent = MutableSharedFlow<ProductNavigationEvent>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
+
+    init {
+        _uiState.update { it.copy(isLoading = false) }
+    }
+
+    fun initTicketData(totalBalance: Int) {
+        _uiState.update { it.copy(totalBalance = totalBalance) }
+        loadProducts()
+    }
+
+    private fun loadProducts() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            Log.d("ProductsVM", "Iniciando loadProducts...")
+
+            getInventoryUseCase().onSuccess { products ->
+                Log.d("ProductsVM", "Éxito: Se recibieron ${products.size} productos del repositorio.")
+                if (products.isEmpty()) {
+                    Log.w("ProductsVM", "La lista de productos está vacía, se mostrará un mensaje.")
+                    _uiState.update { it.copy(isLoading = false, error = "No hay productos disponibles para canjear.") }
+                } else {
+                    _uiState.update { it.copy(isLoading = false, allProducts = products, filteredProducts = products) }
+                }
+            }.onFailure { error ->
+                Log.e("ProductsVM", "Fallo: ${error.message}")
+                _uiState.update { it.copy(isLoading = false, error = error.message) }
+            }
         }
     }
 
-    fun getRemaining(): Double {
-        return _uiState.value.totalBalance - getSelectedAmount()
-    }
-
     fun onQueryChanged(newQuery: String) {
-        val filtered = allProducts.filter { product ->
+        val filtered = _uiState.value.allProducts.filter { product ->
             product.id.contains(newQuery, ignoreCase = true) ||
                     product.name.contains(newQuery, ignoreCase = true)
         }
@@ -42,6 +88,9 @@ class ProductsViewModel @Inject constructor(): ViewModel(){
             )
         }
     }
+
+    fun getSelectedAmount(): Double = _uiState.value.selectedQuantities.entries.sumOf { (product, quantity) -> product.price * quantity }
+    fun getRemaining(): Double = _uiState.value.totalBalance - getSelectedAmount()
 
     fun onIncrement(product: Product) {
         val currentQuantity = _uiState.value.selectedQuantities[product] ?: 0
@@ -69,5 +118,21 @@ class ProductsViewModel @Inject constructor(): ViewModel(){
                 )
             }
         }
+    }
+
+    fun onContinueClicked(exchangeViewModel: ExchangeViewModel) {
+        if (_uiState.value.selectedQuantities.isEmpty()) {
+            _uiState.update { it.copy(showSelectionAlert = true) }
+            return
+        }
+        exchangeViewModel.setSelectedProducts(_uiState.value.selectedQuantities)
+
+        viewModelScope.launch {
+            _navigationEvent.emit(ProductNavigationEvent.NavigateToConfirm)
+        }
+    }
+
+    fun onAlertDismissed() {
+        _uiState.update { it.copy(showSelectionAlert = false) }
     }
 }

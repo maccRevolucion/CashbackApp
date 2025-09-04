@@ -27,7 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun MainScreen() {
+fun MainScreen(onLogout: () -> Unit) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -43,7 +43,7 @@ fun MainScreen() {
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            NavGraph(navController = navController)
+            NavGraph(navController = navController, onLogout = onLogout)
         }
     }
 }
@@ -102,12 +102,11 @@ fun BottomNavigationBar(
 
 @Composable
 fun shouldShowBottomBar(route: String?): Boolean {
-    return when (route) {
-        Screen.TicketCheck.route -> false
-        Screen.Products.route -> false
-        Screen.ConfirmCheck.route -> false
-        Screen.StatusExchange.route -> false
-        "confirm/{selected}" -> false
+    return when {
+        route?.startsWith(Screen.TicketCheck.route) == true -> false
+        route?.startsWith(Screen.Products.route) == true -> false
+        route?.startsWith(Screen.ConfirmCheck.route) == true -> false
+        route?.startsWith(Screen.StatusExchange.route) == true -> false
         else -> true
     }
 }
