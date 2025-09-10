@@ -1,5 +1,6 @@
 package mx.diossa.cashbackapp.domain.ticket
 
+import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -32,25 +33,41 @@ class TicketGenerator @Inject constructor() {
         vendor: String,
         total: Double
     ): String = buildString {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
         val date = LocalDateTime.now().format(formatter)
+
+        val df = DecimalFormat("#0.00")
+        val excessCashback = cashback - subtotal
+
         appendLine("                             ")
         appendLine("             DSD             ")
         appendLine("******* CANJE CASHBACK *******")
         appendLine("Fecha: $date")
-        //appendLine("Canjeador: ")
         appendLine("Vendedor: $vendor")
-        appendLine("                             ")
+        appendLine("CEDIS: MAZATLAN")
         appendLine("-----------------------------")
-        appendLine("Producto    Cant.  Precio  Sub.")
+        appendLine("Producto    Cant. Precio  Sub.")
+
         items.forEach { item ->
             val itemSubtotal = item.quantity * item.price
-            appendLine("${item.name.padEnd(12)} ${item.quantity.toString().padEnd(3)} $${item.price.toString().padEnd(4)} $$itemSubtotal")
+            val name = if (item.name.length > 12) {
+                item.name.take(12)
+            } else {
+                item.name.padEnd(12)
+            }
+
+            val quantity = item.quantity.toString().padStart(3)
+            val price = df.format(item.price).padStart(6)
+            val sub = df.format(itemSubtotal).padStart(7)
+
+            appendLine("$name $quantity $price $sub")
         }
+
         appendLine("                             ")
         appendLine("-----------DESGLOSE----------")
-        appendLine("Subtotal: $$subtotal")
-        appendLine("Cashback restante: $$cashback")
-        appendLine("Total cashback usado: $$total")
+        appendLine("Subtotal: $${df.format(subtotal)}")
+        appendLine("Cashback restante: $${df.format(excessCashback)}")
+        appendLine("Total cashback usado: $${df.format(subtotal)}")
         appendLine("-----------------------------")
         appendLine("Gracias por tu canje!")
         appendLine("Vuelve pronto :)")

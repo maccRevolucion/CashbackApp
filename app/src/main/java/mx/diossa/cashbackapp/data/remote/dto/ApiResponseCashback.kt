@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class ApiResponseCashback(
     val success: Boolean,
     val data: CashbackDetail?,
-    val error: String?
+    val error: ApiError?
 )
 
 data class CashbackDetail(

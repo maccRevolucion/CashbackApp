@@ -36,7 +36,9 @@ class ScanViewModel @Inject constructor(
                 val isValid = isCashbackDateToday(details.cashbackDate)
                 _validationState.value = QrValidationState.Success(details, isValid)
             }.onFailure { error ->
-                _validationState.value = QrValidationState.Error(error.message ?: "ID de Cashback no válido")
+                _validationState.value = QrValidationState.Error(
+                    error.message ?: "Error desconocido"
+                )
             }
         }
     }

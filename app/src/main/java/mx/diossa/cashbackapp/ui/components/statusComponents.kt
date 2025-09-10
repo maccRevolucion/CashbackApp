@@ -411,13 +411,13 @@ fun InfoNotInventoryComponent(){
     }
 }
 
-@Preview
 @Composable
-fun InfoCardNotInventoryComponent(){
+fun InfoCardNotInventoryComponent(
+    products: List<Triple<String, String, String>>
+) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(210.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -432,14 +432,28 @@ fun InfoCardNotInventoryComponent(){
         ) {
             InfoNotInventoryComponent()
             Spacer(modifier = Modifier.height(4.dp))
-            ProductNotAvailableCardComponent()
+
+            products.forEachIndexed { index, (name, price, qty) ->
+                ProductNotAvailableCardComponent(
+                    productName = name,
+                    price = price,
+                    quantityRequest = qty
+                )
+                if (index < products.lastIndex) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+            }
         }
     }
 }
 
-@Preview
+
 @Composable
-fun ProductNotAvailableCardComponent(){
+fun ProductNotAvailableCardComponent(
+    productName: String,
+    price: String,
+    quantityRequest: String
+){
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -465,7 +479,7 @@ fun ProductNotAvailableCardComponent(){
                         fontStyle = FontStyle.Normal
                     ),
                     color = Color.Black,
-                    text = "Producto B"
+                    text =  productName
                 )
                 Text(
                     text = "Sin Stock",
@@ -482,7 +496,7 @@ fun ProductNotAvailableCardComponent(){
                     fontWeight = FontWeight.Bold,
                     fontStyle = FontStyle.Normal
                 ),
-                text = "$150.00",
+                text = price,
                 color = PrimaryColor,
             )
 
@@ -492,7 +506,7 @@ fun ProductNotAvailableCardComponent(){
                     fontWeight = FontWeight.Light,
                     fontStyle = FontStyle.Normal
                 ),
-                text = "Cantidad solicitada: 2",
+                text = "Cantidad solicitada: $quantityRequest",
                 color = RedTextComponent,
             )
         }

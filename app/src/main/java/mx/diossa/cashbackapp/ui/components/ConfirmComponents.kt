@@ -212,8 +212,8 @@ fun ItemPrinterInfoComponent(){
             .padding(8.dp)
             ){
             Text(
-                color = Color.Black,
-                text = "Se generará una nota de venta tipo Obsequio que será impresa automaticamente al confirmar."
+                color = TextGreyComponent,
+                text = "Se generará una nota de venta tipo 'obsequio' que será impresa automaticamente al confirmar."
             )
         }
     }
@@ -340,7 +340,7 @@ fun ItemProductSelectedComponent(
                     fontStyle = FontStyle.Normal
                 ),
                 color = Color.Black,
-                text = "$${price * quantity}",
+                text = "$${String.format("%.2f", price * quantity)}",
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )
@@ -389,7 +389,7 @@ fun ItemTotalComponent(total: Double){
                     fontStyle = FontStyle.Normal
                 ),
                 color = PrimaryColor,
-                text = "$$total",
+                text = "$${String.format("%.2f", total)}",
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )

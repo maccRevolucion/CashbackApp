@@ -67,7 +67,11 @@ fun HeaderTitleProductComponent(onBack: () -> Unit){
     }
 }
 
-
+@Preview
+@Composable
+fun Preview_InfoCard(){
+    inforCard(balance = 0, selected = 0.0, remaining = 0.0)
+}
 
 @Composable
 fun inforCard(
@@ -132,7 +136,7 @@ fun inforCard(
                         fontStyle = FontStyle.Normal
                     ),
                         color = Color.Black,
-                        text = "$${selected}"
+                        text = "$${String.format("%.2f", selected)}"
                     )
                 }
 
@@ -153,7 +157,7 @@ fun inforCard(
                             fontStyle = FontStyle.Normal
                         ),
                         color = PrimaryColor,
-                        text = "$${remaining}"
+                        text = "$${String.format("%.2f", remaining)}"
                     )
                 }
 
@@ -245,7 +249,7 @@ fun ItemProduct(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "$${product.price}",
+                    text = "$${String.format("%.2f", product.price)}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Red

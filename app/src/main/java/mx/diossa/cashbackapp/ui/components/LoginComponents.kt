@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -87,7 +88,9 @@ fun MyTextFieldComponent(
     onValueChange: (String) -> Unit,
     labelValue: String,
     icon: ImageVector,
-    clearTextQuery: (String) -> Unit
+    clearTextQuery: (String) -> Unit,
+    keyboardOptions: Any,
+    keyboardActions: KeyboardActions
 ) {
     OutlinedTextField(
         label = {
@@ -137,7 +140,9 @@ fun PasswordTextFieldComponent(
     labelValue: String,
     icon: ImageVector,
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions
 ) {
     var isPasswordVisible by remember {
         mutableStateOf(false)

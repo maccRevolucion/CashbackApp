@@ -7,5 +7,5 @@ data class UpdateStatusRequest(
 data class ApiResponseUpdateStatus(
     val success: Boolean,
     val data: Any?,
-    val error: String?
+    val error: ApiError?
 )

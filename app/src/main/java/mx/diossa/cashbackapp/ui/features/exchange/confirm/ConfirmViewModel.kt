@@ -79,7 +79,7 @@ class ConfirmViewModel @Inject constructor(
 
         return ticketGenerator.buildRedemptionTicket(
             items = items,
-            cashback =(ticket.cashbackValue.toDouble()) - state.total,
+            cashback =(ticket.cashbackValue.toDouble()),
             subtotal = state.total,
             vendor = ticket.nameEmployee,
             total = state.total

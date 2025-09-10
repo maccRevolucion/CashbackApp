@@ -28,7 +28,7 @@ class InventoryRepository @Inject constructor(
             } else {
                 val errorMessage = response.error ?: "La API no devolvió productos."
                 Log.w("InventoryRepo", "Fallo o datos vacíos: $errorMessage")
-                Result.failure(Exception(errorMessage))
+                Result.failure(Exception(response.error?.detail ?: "Fallo de red o datos vacios"))
             }
         } catch (e: Exception) {
             Log.e("InventoryRepo", "Excepción en la llamada de red: ${e.message}", e)

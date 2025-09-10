@@ -1,15 +1,9 @@
 package mx.diossa.cashbackapp.ui.features.exchange.products
 
-import android.widget.Toast
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,19 +13,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import mx.diossa.cashbackapp.domain.model.SelectedProduct
-import mx.diossa.cashbackapp.domain.model.Ticket
-import mx.diossa.cashbackapp.ui.components.HeaderTitleProductComponent
-import mx.diossa.cashbackapp.ui.components.ItemProduct
-import mx.diossa.cashbackapp.ui.components.SearchBar
-import mx.diossa.cashbackapp.ui.components.SubHeader
-import mx.diossa.cashbackapp.ui.components.bottomButton
-import mx.diossa.cashbackapp.ui.components.inforCard
+import mx.diossa.cashbackapp.ui.components.*
 import mx.diossa.cashbackapp.ui.features.exchange.ExchangeViewModel
 import mx.diossa.cashbackapp.ui.features.navegation.Screen
 
@@ -42,6 +28,7 @@ fun ProductScreen(
 ){
     val viewModel: ProductsViewModel = hiltViewModel()
     val uiState = viewModel.uiState.collectAsState().value
+    val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
         exchangeViewModel.exchangeState.value.ticketDetails?.let {
@@ -61,36 +48,68 @@ fun ProductScreen(
         color = Color.White
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(
+            LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = 72.dp)
                     .padding(horizontal = 8.dp)
-                    .verticalScroll(rememberScrollState())
             ) {
-                HeaderTitleProductComponent(onBack = { navController.popBackStack() })
-                Spacer(modifier = Modifier.height(18.dp))
-                inforCard(
-                    balance = uiState.totalBalance,
-                    selected = viewModel.getSelectedAmount(),
-                    remaining = viewModel.getRemaining()
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                SubHeader()
-                Spacer(modifier = Modifier.height(8.dp))
-                SearchBar(
-                    query = uiState.query,
-                    onQueryChange = viewModel::onQueryChanged,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                when {
-                    uiState.isLoading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                item {
+                    HeaderTitleProductComponent(onBack = { navController.popBackStack() })
+                    Spacer(modifier = Modifier.height(18.dp))
+                    inforCard(
+                        balance = uiState.totalBalance,
+                        selected = viewModel.getSelectedAmount(),
+                        remaining = viewModel.getRemaining()
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    SubHeader()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SearchBar(
+                        query = uiState.query,
+                        onQueryChange = viewModel::onQueryChanged,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                val productsToShow = if (uiState.query.isNotEmpty()) {
+                    uiState.filteredProducts
+                } else {
+                    uiState.visibleProducts
+                }
+
+                itemsIndexed(productsToShow) { index, product ->
+                    ItemProduct(
+                        product = product,
+                        quantity = uiState.selectedQuantities[product] ?: 0,
+                        onIncrement = { viewModel.onIncrement(product) },
+                        onDecrement = { viewModel.onDecrement(product) }
+                    )
+
+                    if (uiState.query.isEmpty() &&
+                        index >= uiState.visibleProducts.size - 1 &&
+                        !uiState.endReached &&
+                        !uiState.isLoading
+                    ) {
+                        viewModel.loadNextPage()
                     }
-                    uiState.error != null -> {
+                }
+                if (uiState.isLoading) {
+                    item {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .wrapContentWidth(Alignment.CenterHorizontally)
+                        )
+                    }
+                }
+                if (uiState.error != null) {
+                    item {
                         Text(
                             text = uiState.error,
                             modifier = Modifier
@@ -100,25 +119,16 @@ fun ProductScreen(
                             color = Color.Gray
                         )
                     }
-                    else -> {
-                        uiState.filteredProducts.forEach { product ->
-                            ItemProduct(
-                                product = product,
-                                quantity = uiState.selectedQuantities[product] ?: 0,
-                                onIncrement = { viewModel.onIncrement(product) },
-                                onDecrement = { viewModel.onDecrement(product) }
-                            )
-                        }
-                    }
                 }
             }
+
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                bottomButton(onSelected = {viewModel.onContinueClicked(exchangeViewModel)})
+                bottomButton(onSelected = { viewModel.onContinueClicked(exchangeViewModel) })
             }
         }
     }

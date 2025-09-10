@@ -12,7 +12,7 @@ data class ItemData(
 data class ApiResponsePostItems(
     val success: Boolean,
     val data: PostItemsData?,
-    val error: String?
+    val error: ApiError?
 )
 
 data class PostItemsData(

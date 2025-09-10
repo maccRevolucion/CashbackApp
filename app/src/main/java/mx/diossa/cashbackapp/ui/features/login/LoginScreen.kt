@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
@@ -14,11 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import mx.diossa.cashbackapp.ui.components.buttonComponent
 import mx.diossa.cashbackapp.ui.components.HeadingTextComponent
 import mx.diossa.cashbackapp.ui.components.MyTextFieldComponent
@@ -83,13 +88,19 @@ fun TextFieldsLogin(
     onPasswordChange: (String) -> Unit,
     clearTextQuery: (String) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+    val passwordFocusRequester = remember { FocusRequester() }
     Column {
         MyTextFieldComponent(
             textValue = username,
             onValueChange = onUsernameChange,
             labelValue = "Usuario",
             icon = Icons.Outlined.Person,
-            clearTextQuery = clearTextQuery
+            clearTextQuery = clearTextQuery,
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(
+                onNext = { passwordFocusRequester.requestFocus() }
+            )
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -99,6 +110,10 @@ fun TextFieldsLogin(
             onValueChange = onPasswordChange,
             labelValue = "Contraseña",
             icon = Icons.Outlined.Lock,
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus() } // cierra el teclado
+            ),
         )
     }
 }

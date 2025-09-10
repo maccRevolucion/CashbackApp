@@ -10,7 +10,7 @@ data class LoginRequest(
 data class ApiResponseLogin(
     val success: Boolean,
     val data: LoginData,
-    val error: String?
+    val error: ApiError?
 )
 
 data class LoginData(

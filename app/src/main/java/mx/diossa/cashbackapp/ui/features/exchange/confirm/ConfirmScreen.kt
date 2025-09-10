@@ -27,7 +27,9 @@ import mx.diossa.cashbackapp.ui.components.HeaderTitleComponent
 import mx.diossa.cashbackapp.ui.components.PrinterInfoCardComponent
 import mx.diossa.cashbackapp.ui.components.ticketResume
 import mx.diossa.cashbackapp.ui.features.exchange.ExchangeViewModel
+import mx.diossa.cashbackapp.ui.features.exchange.status.StatusUiState
 import mx.diossa.cashbackapp.ui.features.navegation.Screen
+import java.time.LocalDateTime
 
 @Composable
 fun ConfirmScreen(
@@ -45,19 +47,32 @@ fun ConfirmScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { result ->
             val state = viewModel.uiState.value
-            exchangeViewModel.setStatusData(
+            val statusData = StatusUiState(
                 isAvailable = result is ExchangeResult.Success,
-                isConnected = state.isPrinterConnected,
-                ticket = state.confirmationData,
-                products = state.selectedProducts
+                isPrinterConnected = state.isPrinterConnected,
+                idTicket = state.confirmationData?.idCashback,
+                balance = state.confirmationData?.cashbackValue,
+                date = LocalDateTime.now(),
+                confirmationData = state.confirmationData,
+                selectedProducts = state.selectedProducts,
+                unavailableProducts = when (result) {
+                    is ExchangeResult.InventoryFailure -> result.unavailableProducts
+                    else -> emptyList()
+                }
             )
 
-            when (result) {
-                is ExchangeResult.Success -> {
-                    navController.navigate("${Screen.StatusExchange.route}/true/${state.isPrinterConnected}")
-                }
-                else -> {
-                    navController.navigate("${Screen.StatusExchange.route}/false/${state.isPrinterConnected}")
+            exchangeViewModel.setStatusData(
+                isAvailable = statusData.isAvailable,
+                isConnected = statusData.isPrinterConnected,
+                ticket = statusData.confirmationData,
+                products = statusData.selectedProducts,
+                unavailableProducts = statusData.unavailableProducts
+            )
+
+            navController.navigate(Screen.StatusExchange.route) {
+                if (result is ExchangeResult.Success) {
+                    popUpTo(Screen.TicketCheck.route) { inclusive = true }
+
                 }
             }
         }

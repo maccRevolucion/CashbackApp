@@ -6,7 +6,7 @@ import mx.diossa.cashbackapp.domain.model.Product
 data class ApiResponseInventory(
     val success: Boolean,
     val data: List<InventoryItem>?,
-    val error: String?
+    val error: ApiError?
 )
 
 data class InventoryItem(

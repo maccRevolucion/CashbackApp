@@ -28,7 +28,7 @@ class UserRepository @Inject constructor(
                 )
                 Result.success(result)
             } else {
-                Result.failure(Exception(response.error ?: "Respuesta de API no exitosa o sin datos"))
+                Result.failure(Exception(response.error?.detail ?: "Respuesta de API no exitosa o sin datos"))
             }
         } catch (e: Exception) {
             Log.e("UserRepository", "Login falló", e)

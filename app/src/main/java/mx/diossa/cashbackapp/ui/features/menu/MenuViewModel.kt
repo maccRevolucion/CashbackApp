@@ -44,10 +44,10 @@ class MenuViewModel @Inject constructor(
                 val tickets = ticketRepository.getRecentCompleteForToday(startOfToday)
 
                 _recentTickets.value = tickets
-                Log.d("MenuVM", "Fetched ${tickets.size} recent tickets for today")
+                Log.d("MENU_VIEW_MODEL", "Fetched ${tickets.size} recent tickets for today")
             } catch (e: Exception) {
                 _error.value = "Error fetching tickets: ${e.message}"
-                Log.e("MenuVM", "Error: ${e.message}")
+                Log.e("MENU_VIEW_MODEL", "Error: ${e.message}")
             } finally {
                 _isLoading.value = false
             }

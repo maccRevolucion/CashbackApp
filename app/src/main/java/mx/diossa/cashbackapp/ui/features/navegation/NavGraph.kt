@@ -66,20 +66,13 @@ fun NavGraph(navController: NavHostController, onLogout: () -> Unit) {
             }
         }
 
-        composable(
-            route = Screen.StatusExchange.route + "/{isAvailable}/{isConnected}",
-            arguments = listOf(
-                navArgument("isAvailable") { type = NavType.BoolType },
-                navArgument("isConnected") { type = NavType.BoolType }
-            )
-        ) { backStackEntry ->
+        composable(route = Screen.StatusExchange.route) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry("exchange_flow")
             }
             val exchangeViewModel: ExchangeViewModel = hiltViewModel(parentEntry)
             StatusScreen(navController, exchangeViewModel)
         }
-
 
     }
 }

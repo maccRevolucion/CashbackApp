@@ -12,7 +12,7 @@ data class LoadData(
 data class ApiResponseLoadItems(
     val success: Boolean,
     val data: LoadResponse?,
-    val error: String?
+    val error: ApiError?
 )
 
 data class LoadResponse(

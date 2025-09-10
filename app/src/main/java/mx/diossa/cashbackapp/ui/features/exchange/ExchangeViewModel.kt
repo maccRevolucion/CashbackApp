@@ -23,8 +23,8 @@ class ExchangeViewModel @Inject constructor() : ViewModel() {
     private val _exchangeState = MutableStateFlow(ExchangeState())
     val exchangeState = _exchangeState.asStateFlow()
 
-    private val _statusState = MutableStateFlow<StatusUiState?>(null)
-    val statusState: StateFlow<StatusUiState?> = _statusState
+    private val _statusState = MutableStateFlow(StatusUiState())
+    val statusState: StateFlow<StatusUiState> = _statusState
 
     fun setTicketDetails(details: CashbackDetail) {
         _exchangeState.update { it.copy(ticketDetails = details) }
@@ -38,7 +38,8 @@ class ExchangeViewModel @Inject constructor() : ViewModel() {
         isAvailable: Boolean,
         isConnected: Boolean,
         ticket: CashbackDetail?,
-        products: List<ConfirmViewModel.UiSelectedProduct>
+        products: List<ConfirmViewModel.UiSelectedProduct>,
+        unavailableProducts: List<Product> = emptyList()
     ) {
         _statusState.value = StatusUiState(
             isAvailable = isAvailable,
@@ -47,7 +48,8 @@ class ExchangeViewModel @Inject constructor() : ViewModel() {
             balance = ticket?.cashbackValue,
             date = LocalDateTime.now(),
             confirmationData = ticket,
-            selectedProducts = products
+            selectedProducts = products,
+            unavailableProducts = unavailableProducts
         )
     }
 }
