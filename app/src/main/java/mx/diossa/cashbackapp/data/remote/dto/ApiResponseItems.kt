@@ -17,5 +17,4 @@ data class ApiResponsePostItems(
 
 data class PostItemsData(
     val idProduct: Int
-    // Otros
 )

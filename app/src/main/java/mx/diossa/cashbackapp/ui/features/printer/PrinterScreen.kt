@@ -2,6 +2,7 @@ package mx.diossa.cashbackapp.ui.features.printer
 
 import android.Manifest
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +42,13 @@ import java.util.concurrent.TimeUnit
 fun PrinterScreen(navController: NavHostController, viewModel: PrinterViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { errorMessage ->
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            viewModel.clearError()
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -80,41 +90,43 @@ fun PrinterScreen(navController: NavHostController, viewModel: PrinterViewModel 
         modifier = Modifier.fillMaxSize(),
         color = Color.White
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            HeaderTitle()
-            Spacer(modifier = Modifier.height(16.dp))
-            printerStatus(
-                printerName = uiState.printerName,
-                isConnected = uiState.isConnected,
-                onRefresh = {viewModel.refreshConnection()},
-                onPrintTest = {viewModel.printTest()}
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Contenido normal
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                HeaderTitle()
+                Spacer(modifier = Modifier.height(16.dp))
+                printerStatus(
+                    printerName = uiState.printerName,
+                    isConnected = uiState.isConnected,
+                    onRefresh = { viewModel.refreshConnection() },
+                    onPrintTest = { viewModel.printTest() }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
-            PrinterConfig(
-                printerName = uiState.printerName,
-                macAddress = uiState.macAddress,
-                onNameChanged = { viewModel.onNameChanged(it) },
-                onMacChanged = { viewModel.onMacChanged(it) },
-                onSave = { mac -> viewModel.saveConfig(mac) }
-            )
+                Spacer(modifier = Modifier.height(24.dp))
+                PrinterConfig(
+                    printerName = uiState.printerName,
+                    macAddress = uiState.macAddress,
+                    onNameChanged = { viewModel.onNameChanged(it) },
+                    onMacChanged = { viewModel.onMacChanged(it) },
+                    onSave = { mac -> viewModel.saveConfig(mac) }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            if (uiState.error != null) {
-                Text(
-                    text = "Error: ${uiState.error}",
-                    color = Color.Red,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }

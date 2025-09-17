@@ -8,6 +8,7 @@ import mx.diossa.cashbackapp.data.remote.dto.ApiResponseLogin
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponsePostItems
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseUpdateStatus
 import mx.diossa.cashbackapp.data.remote.dto.ItemData
+import mx.diossa.cashbackapp.data.remote.dto.LoadData
 import mx.diossa.cashbackapp.data.remote.dto.UpdateStatusRequest
 import mx.diossa.cashbackapp.data.remote.dto.LoginRequest
 import javax.inject.Inject
@@ -25,5 +26,5 @@ class RemoteDataSource @Inject constructor(
 
     suspend fun postItems(request: List<ItemData>): ApiResponsePostItems = apiService.postItems(request)
 
-    suspend fun postLoadItems(request: List<ItemData>): ApiResponseLoadItems = apiService.postLoadItems(request)
+    suspend fun postLoadItems(request: List<LoadData>): ApiResponseLoadItems = apiService.postLoadItems(request)
 }

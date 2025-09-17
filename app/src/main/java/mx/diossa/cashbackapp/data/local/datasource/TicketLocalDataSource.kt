@@ -1,8 +1,12 @@
 package mx.diossa.cashbackapp.data.local.datasource
 
 import android.util.Log
+import kotlinx.coroutines.flow.Flow
 import mx.diossa.cashbackapp.data.local.dao.TicketDao
 import mx.diossa.cashbackapp.data.local.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketProductEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketWithProducts
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -11,14 +15,30 @@ class TicketLocalDataSource @Inject constructor(
     private val ticketDao: TicketDao
 ){
     private val startOfToday: LocalDateTime = LocalDateTime.now().toLocalDate().atStartOfDay()
-    suspend fun getRecentCompletedForToday(startOfDay: LocalDateTime): List<TicketEntity> = ticketDao.getRecentCompleted(startOfToday)
+    fun getRecentCompletedForToday(startOfDay: LocalDateTime): Flow<List<TicketEntity>> = ticketDao.getRecentCompleted(startOfToday)
+    fun getAllCompleted(startOfDay: LocalDateTime): Flow<List<TicketEntity>> = ticketDao.getAllCompleted(startOfToday)
+    suspend fun insert(ticket: TicketEntity) = ticketDao.insert(ticket)
 
-    suspend fun getRecentCompleted(): List<TicketEntity> = ticketDao.getRecentCompleted(startOfToday)
+    suspend fun insertProducts(products: List<TicketProductEntity>) =
+        ticketDao.insertProducts(products)
 
-    suspend fun getAllCompleted(): List<TicketEntity> = ticketDao.getAllCompleted()
+    suspend fun insertTicketWithProducts(ticket: TicketEntity, products: List<TicketProductEntity>) {
+        ticketDao.insert(ticket)
+        ticketDao.insertProducts(products)
+    }
+
+    suspend fun clearAll(){
+        ticketDao.clearAll()
+    }
+
+    fun getTicketsWithProductsForDate(date: LocalDate): Flow<List<TicketWithProducts>> {
+        val start = date.atStartOfDay()
+        val end = date.plusDays(1).atStartOfDay()
+        return ticketDao.getTicketsForDate(start, end)
+    }
 
     suspend fun initializeTicketsIfNeeded() {
-        Log.d("TicketInit", "Count: ${ticketDao.getCount()}")
+        Log.d("TICKET_LOCAL_DATASOURCE", "Contador: ${ticketDao.getCount()}")
         if (ticketDao.getCount() == 0) {
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
             val initialTickets = listOf(
@@ -31,9 +51,9 @@ class TicketLocalDataSource @Inject constructor(
                 TicketEntity("7", "T-1007", "Diego Torres", LocalDateTime.parse("2025-08-27 15:30", formatter), 350, "completed"),
                 TicketEntity("8", "T-1008", "Elena Ramirez", LocalDateTime.parse("2025-08-27 17:45", formatter), 50, "failed")
             )
-            Log.d("TicketInit", "Inserted ${initialTickets.size} tickets")
+            Log.d("TICKET_LOCAL_DATASOURCE", "Insertado: ${initialTickets.size} tickets")
             ticketDao.insertAll(initialTickets)
         }
-        Log.d("TicketInit", "DB not empty, skipping insert")
+        Log.d("TICKET_LOCAL_DATASOURCE", "BD no vacia, ignoramos insertar")
     }
 }

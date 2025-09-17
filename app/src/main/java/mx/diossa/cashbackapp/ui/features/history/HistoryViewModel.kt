@@ -18,25 +18,28 @@ import mx.diossa.cashbackapp.data.repository.TicketRepository
 import mx.diossa.cashbackapp.domain.model.UiStateTicket  // Asume data class UiStateTicket(val query: String = "", val isAscending: Boolean = false, val filteredTickets: List<TicketEntity> = emptyList())
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val ticketRepository: TicketRepository
-): ViewModel() {
-    private val _allCompletedTickets = MutableStateFlow<List<TicketEntity>>(emptyList())
+) : ViewModel() {
     private val _uiState = MutableStateFlow(UiStateTicket())
     val uiState: StateFlow<UiStateTicket> = _uiState.asStateFlow()
 
-    val completedTickets: StateFlow<List<TicketEntity>> = _uiState.map { it.filteredTickets }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = emptyList()
-    )
+    private val _allTickets = MutableStateFlow<List<TicketEntity>>(emptyList())
+
+    val completedTickets: StateFlow<List<TicketEntity>> =
+        _uiState.map { it.filteredTickets }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     init {
         viewModelScope.launch {
-            _allCompletedTickets.value = ticketRepository.getAllCompleted()
-            _uiState.value = UiStateTicket(filteredTickets = getFilteredTickets("", false, _allCompletedTickets.value))
+            val startOfDay = java.time.LocalDate.now().atStartOfDay()
+            ticketRepository.getAllCompleted(startOfDay).collect { tickets ->
+                _allTickets.value = tickets
+                _uiState.update {
+                    it.copy(filteredTickets = getFilteredTickets("", it.isAscending, tickets))
+                }
+            }
         }
     }
 
@@ -44,7 +47,7 @@ class HistoryViewModel @Inject constructor(
         _uiState.update { current ->
             current.copy(
                 query = newQuery,
-                filteredTickets = getFilteredTickets(newQuery, current.isAscending, _allCompletedTickets.value)
+                filteredTickets = getFilteredTickets(newQuery, current.isAscending, _allTickets.value)
             )
         }
     }
@@ -54,21 +57,22 @@ class HistoryViewModel @Inject constructor(
             val newAscending = !current.isAscending
             current.copy(
                 isAscending = newAscending,
-                filteredTickets = getFilteredTickets(current.query, newAscending, _allCompletedTickets.value)
+                filteredTickets = getFilteredTickets(current.query, newAscending, _allTickets.value)
             )
         }
     }
 
-    private fun getFilteredTickets(query: String, isAscending: Boolean, tickets: List<TicketEntity>): List<TicketEntity> {
+    private fun getFilteredTickets(
+        query: String,
+        isAscending: Boolean,
+        tickets: List<TicketEntity>
+    ): List<TicketEntity> {
         val filtered = tickets.filter { ticket ->
             ticket.id.contains(query, ignoreCase = true) ||
                     ticket.ticketNumber.contains(query, ignoreCase = true) ||
-                    ticket.sellerName.contains(query, ignoreCase = true)
+                    ticket.employeeName.contains(query, ignoreCase = true)
         }
-        return if (isAscending) {
-            filtered.sortedBy { it.date }
-        } else {
-            filtered.sortedByDescending { it.date }
-        }
+        return if (isAscending) filtered.sortedBy { it.date }
+        else filtered.sortedByDescending { it.date }
     }
 }

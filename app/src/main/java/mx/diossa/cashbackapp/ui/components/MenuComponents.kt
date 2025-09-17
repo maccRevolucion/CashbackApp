@@ -60,7 +60,8 @@ fun TextUserHeader(
     onProfileClick: () -> Unit,
     showLogoutMenu: Boolean,
     onDismissMenu: () -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    onClosingDay: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -107,8 +108,12 @@ fun TextUserHeader(
             modifier = Modifier.align(Alignment.TopEnd)
         ) {
             DropdownMenuItem(
-                text = { Text("Cerrar Sesión") },
+                text = { Text("Cerrar sesión") },
                 onClick = { onLogoutClick() }
+            )
+            DropdownMenuItem(
+                text = { Text("Cierre del día") },
+                onClick = { onClosingDay() }
             )
         }
     }
@@ -117,7 +122,7 @@ fun TextUserHeader(
 @Preview(showBackground = true)
 @Composable
 fun Preview_Header(){
-    TextUserHeader(employeeName = "Cesar Covantes", onProfileClick = {}, onDismissMenu = {}, onLogoutClick = {}, showLogoutMenu = false)
+    TextUserHeader(employeeName = "Cesar Covantes", onProfileClick = {}, onDismissMenu = {}, onLogoutClick = {}, onClosingDay = {}, showLogoutMenu = false)
 }
 @Preview
 @Composable
@@ -283,7 +288,10 @@ fun recentActivity(tickets: List<TicketEntity>, viewModel: MenuViewModel) {
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             if(tickets.isEmpty()){
-                Text("No hay actividad reciente")
+                Text(
+                    text = "No hay actividad reciente",
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             } else {
                 tickets.forEach { ticket ->
                     ItemRecentComponent(

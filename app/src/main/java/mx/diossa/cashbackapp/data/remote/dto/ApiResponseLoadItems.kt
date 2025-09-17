@@ -1,21 +1,20 @@
 package mx.diossa.cashbackapp.data.remote.dto
 
-data class PostLoadItemsRequest(
-    val loadData: LoadData
-)
+import com.google.gson.annotations.SerializedName
 
 data class LoadData(
-    val id: Int
-    // Otros
+    @SerializedName("product_id")
+    val idProduct: Int,
+    @SerializedName("quantity")
+    val quantity: Int
 )
 
 data class ApiResponseLoadItems(
     val success: Boolean,
-    val data: LoadResponse?,
+    val data: PostLoadItemsData?,
     val error: ApiError?
 )
 
-data class LoadResponse(
-    val status: String
-    // Otros
+data class PostLoadItemsData(
+    val idProduct: Int
 )

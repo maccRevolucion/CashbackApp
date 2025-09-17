@@ -1,5 +1,6 @@
 package mx.diossa.cashbackapp.ui.features.login
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -34,6 +37,20 @@ import mx.diossa.cashbackapp.ui.components.PasswordTextFieldComponent
 fun LoginScreen(onLoginSuccess: () -> Unit, viewModel: LoginViewModel = hiltViewModel()){
     val uiState = viewModel.uiState.collectAsState()
     val navigationEvent by viewModel.navigationEvent.collectAsState()
+    val context = LocalContext.current
+    val ui = uiState.value
+
+    LaunchedEffect(ui.errorMessage) {
+        ui.errorMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit){
+        viewModel.errorEvent.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(navigationEvent){
         when (navigationEvent){
@@ -112,8 +129,9 @@ fun TextFieldsLogin(
             icon = Icons.Outlined.Lock,
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
-                onDone = { focusManager.clearFocus() } // cierra el teclado
+                onDone = { focusManager.clearFocus() }
             ),
+            modifier = Modifier.focusRequester(passwordFocusRequester)
         )
     }
 }

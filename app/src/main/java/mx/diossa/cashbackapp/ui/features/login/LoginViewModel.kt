@@ -4,7 +4,9 @@ import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,24 +26,29 @@ class LoginViewModel @Inject constructor(
     private val _navigationEvent = MutableStateFlow<NavigationEvent?>(null)
     val navigationEvent: StateFlow<NavigationEvent?> = _navigationEvent.asStateFlow()
 
+    private val _errorEvent = MutableSharedFlow<String>()
+    val errorEvent: SharedFlow<String> = _errorEvent
+
     sealed class NavigationEvent{
         object NavigateToMenu : NavigationEvent()
     }
 
     fun onUsernameChanged(username: String) {
+        val trimmed = username.trim()
         _uiState.update { currentState ->
             currentState.copy(
-                username = username,
-                isButtonEnabled = isFormValid(username, currentState.password)
+                username = trimmed,
+                isButtonEnabled = isFormValid(trimmed, currentState.password)
             )
         }
     }
 
     fun onPasswordChanged(password: String) {
+        val trimmed = password.trim()
         _uiState.update { currentState ->
             currentState.copy(
-                password = password,
-                isButtonEnabled = isFormValid(currentState.username, password)
+                password = trimmed,
+                isButtonEnabled = isFormValid(currentState.username, trimmed)
             )
         }
     }
@@ -54,8 +61,17 @@ class LoginViewModel @Inject constructor(
 
     fun onLoginClicked() {
         viewModelScope.launch {
+            val lastClosingDate = sharedPreferences.getString("last_closing_date", null)
+            if (lastClosingDate == java.time.LocalDate.now().toString()) {
+                _errorEvent.emit("Ya realizaste el cierre de hoy. Vuelve mañana.")
+                return@launch
+            }
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = validateLoginUseCase(_uiState.value.username.trim(), _uiState.value.password.trim())
+
+            val result = validateLoginUseCase(
+                _uiState.value.username.trim(),
+                _uiState.value.password.trim()
+            )
 
             result.onSuccess { loginResult ->
                 sharedPreferences.edit()
@@ -67,11 +83,11 @@ class LoginViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false) }
                 _navigationEvent.value = NavigationEvent.NavigateToMenu
 
-            }.onFailure { exception ->
+            }.onFailure { error ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = exception.message ?: "Credenciales inválidas"
+                        errorMessage = error.message ?: "Credenciales inválidas"
                     )
                 }
             }

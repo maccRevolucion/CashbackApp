@@ -1,5 +1,7 @@
 package mx.diossa.cashbackapp.domain.ticket
 
+import kotlinx.coroutines.flow.StateFlow
+import mx.diossa.cashbackapp.data.local.entity.TicketWithProducts
 import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -50,17 +52,16 @@ class TicketGenerator @Inject constructor() {
 
         items.forEach { item ->
             val itemSubtotal = item.quantity * item.price
-            val name = if (item.name.length > 12) {
-                item.name.take(12)
-            } else {
-                item.name.padEnd(12)
-            }
-
+            val maxNameLength = 12
+            val nameChunks = item.name.chunked(maxNameLength)
             val quantity = item.quantity.toString().padStart(3)
             val price = df.format(item.price).padStart(6)
             val sub = df.format(itemSubtotal).padStart(7)
 
-            appendLine("$name $quantity $price $sub")
+            appendLine("${nameChunks.first().padEnd(maxNameLength)} $quantity $price $sub")
+            nameChunks.drop(1).forEach { chunk ->
+                appendLine(chunk.padEnd(maxNameLength))
+            }
         }
 
         appendLine("                             ")
@@ -74,4 +75,59 @@ class TicketGenerator @Inject constructor() {
         appendLine("                             ")
         appendLine("                             ")
     }
+
+
+    fun buildDailySummaryTicket(tickets: List<TicketWithProducts>, employeeName: String): String = buildString {
+        val df = DecimalFormat("#0.00")
+        val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+
+        appendLine("                             ")
+        appendLine("             DSD             ")
+        appendLine("******* CORTE DE DIA *******")
+        appendLine("Fecha: $date")
+        appendLine("Almacenista: $employeeName")
+        appendLine("-----------------------------")
+
+        var totalCashback = 0.0
+        val productSummary = mutableMapOf<String, Pair<Int, Double>>()
+
+        tickets.forEach { ticket ->
+            totalCashback += ticket.ticketEntity.amount
+            ticket.products.forEach { product ->
+                val current = productSummary[product.productName] ?: (0 to 0.0)
+                productSummary[product.productName] = (
+                        current.first + product.quantity
+                        ) to (
+                        current.second + (product.quantity * product.price)
+                        )
+            }
+        }
+
+        appendLine("PRODUCTOS ENTREGADOS:")
+
+        val maxWidth = 20
+
+        productSummary.forEach { (name, pair) ->
+            val (quantity, total) = pair
+            val priceString = "x$quantity  $${df.format(total)}"
+            val wrappedLines = name.chunked(maxWidth)
+
+            wrappedLines.forEachIndexed { index, line ->
+                if (index == 0) {
+                    appendLine(line.padEnd(maxWidth) + " " + priceString)
+                } else {
+                    appendLine(line)
+                }
+            }
+        }
+
+        appendLine("-----------------------------")
+        appendLine("Total Tickets: ${tickets.size}")
+        appendLine("Total Cashback: $${df.format(totalCashback)}")
+        appendLine("-----------------------------")
+        appendLine("Fin del reporte del dia")
+        appendLine("                             ")
+        appendLine("                             ")
+    }
+
 }

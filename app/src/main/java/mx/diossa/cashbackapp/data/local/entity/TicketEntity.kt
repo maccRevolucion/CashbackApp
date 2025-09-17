@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class TicketEntity(
     @PrimaryKey val id: String,
     val ticketNumber: String,
-    val sellerName: String,
+    val employeeName: String,
     val date: LocalDateTime,
     val amount: Int,
     val status: String

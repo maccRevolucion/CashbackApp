@@ -32,13 +32,24 @@ class ScanViewModel @Inject constructor(
 
         viewModelScope.launch {
             _validationState.value = QrValidationState.Loading
-            getCashbackDetailsUseCase(idCashback.toInt()).onSuccess { details ->
-                val isValid = isCashbackDateToday(details.cashbackDate)
-                _validationState.value = QrValidationState.Success(details, isValid)
-            }.onFailure { error ->
-                _validationState.value = QrValidationState.Error(
-                    error.message ?: "Error desconocido"
-                )
+            try {
+                val cashbackId = idCashback.toIntOrNull()
+                if (cashbackId == null) {
+                    _validationState.value = QrValidationState.Error("QR no válido, inténtelo de nuevo")
+                    return@launch
+                }
+
+                getCashbackDetailsUseCase(cashbackId).onSuccess { details ->
+                    val isValid = isCashbackDateToday(details.cashbackDate)
+                    _validationState.value = QrValidationState.Success(details, isValid)
+                }.onFailure { error ->
+                    _validationState.value = QrValidationState.Error(
+                        error.message ?: "Error desconocido"
+                    )
+                }
+
+            } catch (e: Exception) {
+                _validationState.value = QrValidationState.Error("QR no válido, inténtelo de nuevo")
             }
         }
     }

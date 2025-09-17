@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import mx.diossa.cashbackapp.core.utils.PrinterConnection
+import mx.diossa.cashbackapp.data.local.entity.TicketEntity
+import mx.diossa.cashbackapp.data.local.entity.TicketProductEntity
 import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
+import mx.diossa.cashbackapp.data.repository.TicketRepository
 import mx.diossa.cashbackapp.domain.model.Product
 import mx.diossa.cashbackapp.domain.model.UiStateConfirm
 import mx.diossa.cashbackapp.domain.ticket.RedemptionItem
@@ -18,13 +21,15 @@ import mx.diossa.cashbackapp.domain.ticket.TicketGenerator
 import mx.diossa.cashbackapp.domain.usecases.ExchangeResult
 import mx.diossa.cashbackapp.domain.usecases.ProcessExchangeUseCase
 import mx.diossa.cashbackapp.ui.features.exchange.ExchangeViewModel
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmViewModel @Inject constructor(
     private val printerConnection: PrinterConnection,
     private val processExchangeUseCase: ProcessExchangeUseCase,
-    private val ticketGenerator: TicketGenerator
+    private val ticketGenerator: TicketGenerator,
+    private val ticketRepository: TicketRepository
 ): ViewModel(){
     private val _uiState = MutableStateFlow(UiStateConfirm())
     val uiState: StateFlow<UiStateConfirm> = _uiState.asStateFlow()
@@ -56,8 +61,25 @@ class ConfirmViewModel @Inject constructor(
 
             if (result is ExchangeResult.Success) {
                 val ticketString = formatTicketForPrinting()
-                android.util.Log.d("ConfirmVM", "Ticket generado:\n$ticketString")
                 printerConnection.sendMessage(ticketString)
+                val entity = TicketEntity(
+                    id = ticket.idCashback.toString(),
+                    ticketNumber = "${ticket.idCashback}",
+                    employeeName = ticket.nameEmployee,
+                    date = LocalDateTime.now(),
+                    amount = ticket.cashbackValue,
+                    status = "completed"
+                )
+
+                val productEntities = selectedProducts.map { (product, quantity) ->
+                    TicketProductEntity(
+                        ticketId = entity.id,
+                        productName = product.name,
+                        quantity = quantity,
+                        price = product.price
+                    )
+                }
+                ticketRepository.insertTicketWithProducts(entity, productEntities)
             }
 
             _navigationEvent.emit(result)

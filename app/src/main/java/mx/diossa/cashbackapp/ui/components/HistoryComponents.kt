@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,18 +34,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.diossa.cashbackapp.data.local.entity.TicketEntity
-import mx.diossa.cashbackapp.domain.model.Ticket
-import mx.diossa.cashbackapp.ui.features.history.HistoryViewModel
 import mx.diossa.cashbackapp.ui.theme.GreenCompletedComponent
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor
 import mx.diossa.cashbackapp.ui.theme.TextColor
 import mx.diossa.cashbackapp.ui.theme.TextGreyComponent
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 @Preview(showBackground = true)
 @Composable
@@ -94,7 +91,6 @@ fun SearchBarHistory(
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TicketsDoneComponent(
     tickets: List<TicketEntity>,
@@ -140,14 +136,17 @@ fun TicketsDoneComponent(
             .verticalScroll(rememberScrollState())
             .padding(vertical = 4.dp)
         ) {
-            tickets.forEach { ticket ->
-                ItemTicketComponent(
-                    idFolio = ticket.id,
-                    idTicket = ticket.ticketNumber,
-                    sellerName = ticket.sellerName,
-                    date = ticket.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm a")),
-                    cash = ticket.amount
-                )
+            if(tickets.isEmpty()) Text(text = "No hay tickets procesados el día de hoy.")
+            else{
+                tickets.forEach { ticket ->
+                    ItemTicketComponent(
+                        idFolio = ticket.id,
+                        idTicket = ticket.ticketNumber,
+                        sellerName = ticket.employeeName,
+                        date = ticket.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - hh:mm a")),
+                        cash = ticket.amount
+                    )
+                }
             }
         }
     }
@@ -218,7 +217,14 @@ fun ItemTicketComponent(idFolio: String, idTicket: String, sellerName: String, d
                 color = TextGreyComponent,
                 text = "Vendedor:"
             )
-            Text(text = sellerName)
+            Text(
+                text = sellerName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(
+                    fontSize = 14.sp
+                ),
+                )
         }
 
         Row(

@@ -1,6 +1,7 @@
 package mx.diossa.cashbackapp.ui.features.menu
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,12 +29,23 @@ import mx.diossa.cashbackapp.ui.components.recentActivity
 import mx.diossa.cashbackapp.ui.features.navegation.Screen
 
 @Composable
-fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hiltViewModel(), onLogout: ()-> Unit){
+fun MenuScreen(
+    navController: NavHostController,
+    viewModel: MenuViewModel = hiltViewModel(),
+    onLogout: ()-> Unit
+){
     val navigationEvent by viewModel.navigationEvent.collectAsStateWithLifecycle()
     val recentTickets by viewModel.recentTickets.collectAsState()
+    val ticketsCount by viewModel.ticketsCount.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val employeeName by viewModel.employeeName.collectAsState()
     var showLogoutMenu by remember { mutableStateOf(false) }
+    var showClosingDayDialog by remember { mutableStateOf(false) }
+    var inputConfirm by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshRecentTickets()
+    }
 
     LaunchedEffect(navigationEvent){
         when(navigationEvent){
@@ -71,9 +83,10 @@ fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hilt
             onLogoutClick = {
                 showLogoutMenu = false
                 viewModel.onLogoutClicked()
-            }
+            },
+            onClosingDay = { showClosingDayDialog = true }
         )
-        ItemTicketsPerDay(tickets = "12")
+        ItemTicketsPerDay(tickets = ticketsCount.toString())
         Row {
             ItemButtons(
                 action = "Escanear QR",
@@ -94,5 +107,39 @@ fun MenuScreen(navController: NavHostController, viewModel: MenuViewModel = hilt
         } else {
             recentActivity(tickets = recentTickets, viewModel = viewModel)
         }
+    }
+
+    if (showClosingDayDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showClosingDayDialog = false },
+            title = { Text("Confirmar Cierre de Día") },
+            text = {
+                Column {
+                    Text("Esta acción generará el reporte y bloqueará el acceso hasta mañana.\n\nEscribe 'si' para confirmar:")
+                    androidx.compose.material3.OutlinedTextField(
+                        value = inputConfirm,
+                        onValueChange = { inputConfirm = it },
+                        placeholder = { Text("Escribe 'si'") }
+                    )
+                }
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        if (inputConfirm.equals("si", ignoreCase = true)) {
+                            viewModel.onClosingDay()
+                            showClosingDayDialog = false
+                        } else {
+                            Toast.makeText(navController.context, "Debes escribir 'si' para confirmar", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ) { Text("Confirmar") }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showClosingDayDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }

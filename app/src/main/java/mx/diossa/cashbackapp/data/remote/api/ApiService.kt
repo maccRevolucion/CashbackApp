@@ -7,6 +7,7 @@ import mx.diossa.cashbackapp.data.remote.dto.ApiResponseLogin
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponsePostItems
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseUpdateStatus
 import mx.diossa.cashbackapp.data.remote.dto.ItemData
+import mx.diossa.cashbackapp.data.remote.dto.LoadData
 import mx.diossa.cashbackapp.data.remote.dto.LoginRequest
 import mx.diossa.cashbackapp.data.remote.dto.UpdateStatusRequest
 import retrofit2.http.Body
@@ -33,6 +34,6 @@ interface ApiService {
     suspend fun postItems(@Body request: List<ItemData>): ApiResponsePostItems
 
     @POST("load")
-    suspend fun postLoadItems(@Body request: List<ItemData>): ApiResponseLoadItems
+    suspend fun postLoadItems(@Body request: List<LoadData>): ApiResponseLoadItems
 
 }

@@ -3,10 +3,10 @@ package mx.diossa.cashbackapp.data.repository
 import android.util.Log
 import com.google.gson.Gson
 import mx.diossa.cashbackapp.data.remote.datasource.RemoteDataSource
-import mx.diossa.cashbackapp.data.remote.dto.ApiError
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponse
 import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
 import mx.diossa.cashbackapp.data.remote.dto.ItemData
+import mx.diossa.cashbackapp.data.remote.dto.LoadData
 import mx.diossa.cashbackapp.data.remote.dto.UpdateStatusRequest
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -56,7 +56,7 @@ class CashbackRepository @Inject constructor(
 
     suspend fun postExchangeItems(items: List<ItemData>): Result<Unit> {
         return try {
-            Log.d("CASHBACK_REPOSITOTY", "POST /liquidation/items y /load con $items")
+            Log.d("CASHBACK_REPOSITOTY", "POST /liquidation/items $items")
 
             val liquidationResponse = remoteDataSource.postItems(items)
             if (liquidationResponse.success) {
@@ -65,6 +65,24 @@ class CashbackRepository @Inject constructor(
             } else {
                 Log.e("CASHBACK_REPOSITOTY", "Error en POST de items: ${liquidationResponse.error}")
                 Result.failure(Exception(liquidationResponse.error?.detail ?: "Error en el POST de items"))
+            }
+        } catch (e: Exception) {
+            Log.e("CASHBACK_REPOSITOTY", "Excepción en postExchangeItems", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun postExchangeLoadItems(items: List<LoadData>): Result<Unit> {
+        return try {
+            Log.d("CASHBACK_REPOSITOTY", "POST /load con $items")
+
+            val loadItemsResponse = remoteDataSource.postLoadItems(items)
+            if (loadItemsResponse.success) {
+                Log.d("CASHBACK_REPOSITOTY", "POST de items exitoso.")
+                Result.success(Unit)
+            } else {
+                Log.e("CASHBACK_REPOSITOTY", "Error en POST de items: ${loadItemsResponse.error}")
+                Result.failure(Exception(loadItemsResponse.error?.detail ?: "Error en el POST de items"))
             }
         } catch (e: Exception) {
             Log.e("CASHBACK_REPOSITOTY", "Excepción en postExchangeItems", e)

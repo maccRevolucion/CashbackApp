@@ -50,7 +50,7 @@ class PrinterViewModel @Inject constructor(
                     isLoading = status.state == BluetoothService.STATE_CONNECTING
                 )
             }
-            Log.d("PrinterVM", "Printer status updated: State=${status.state}, Name=${status.deviceName}")
+            Log.d("PRINTER_VIEW_MODEL", "Printer status updated: State=${status.state}, Name=${status.deviceName}")
         }.launchIn(viewModelScope)
     }
 
@@ -107,5 +107,10 @@ class PrinterViewModel @Inject constructor(
         val isConnected = printerConnection.isConnected()
         _uiState.update { it.copy(isConnected = isConnected, isLoading = false) }
     }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
+
 
 }

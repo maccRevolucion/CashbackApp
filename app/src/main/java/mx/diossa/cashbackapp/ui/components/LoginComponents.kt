@@ -142,7 +142,8 @@ fun PasswordTextFieldComponent(
     value: String,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
-    keyboardActions: KeyboardActions
+    keyboardActions: KeyboardActions,
+    modifier: Modifier = Modifier
 ) {
     var isPasswordVisible by remember {
         mutableStateOf(false)

@@ -1,5 +1,6 @@
 package mx.diossa.cashbackapp.ui.features.exchange.status
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,19 @@ fun StatusScreen(navController: NavHostController, exchangeViewModel: ExchangeVi
 
     LaunchedEffect(exchangeUiState) {
         exchangeUiState?.let { viewModel.setData(it) }
+    }
+
+    LaunchedEffect(exchangeUiState) {
+        exchangeUiState?.let { viewModel.setData(it) }
+    }
+    BackHandler(enabled = true) {
+        if (uiState.isAvailable) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        } else {
+            navController.popBackStack()
+        }
     }
 
     Surface(
