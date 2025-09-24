@@ -1,13 +1,16 @@
 package mx.diossa.cashbackapp.data.remote.api
 
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseCashback
+import mx.diossa.cashbackapp.data.remote.dto.ApiResponseCashbackDetails
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseInventory
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseLoadItems
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseLogin
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponsePostItems
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseUpdateStatus
+import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
 import mx.diossa.cashbackapp.data.remote.dto.ItemData
 import mx.diossa.cashbackapp.data.remote.dto.LoadData
+import mx.diossa.cashbackapp.data.remote.dto.LoadItemDetails
 import mx.diossa.cashbackapp.data.remote.dto.LoginRequest
 import mx.diossa.cashbackapp.data.remote.dto.UpdateStatusRequest
 import retrofit2.http.Body
@@ -35,5 +38,8 @@ interface ApiService {
 
     @POST("load")
     suspend fun postLoadItems(@Body request: List<LoadData>): ApiResponseLoadItems
+
+    @POST("cashback/{id_cashback}/details")
+    suspend fun postItemDetails(@Path("id_cashback") idCashback: Int, @Body request: List<LoadItemDetails>): ApiResponseCashbackDetails
 
 }

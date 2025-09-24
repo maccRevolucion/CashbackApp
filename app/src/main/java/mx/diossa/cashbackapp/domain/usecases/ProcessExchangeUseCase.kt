@@ -3,6 +3,7 @@ package mx.diossa.cashbackapp.domain.usecases
 import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
 import mx.diossa.cashbackapp.data.remote.dto.ItemData
 import mx.diossa.cashbackapp.data.remote.dto.LoadData
+import mx.diossa.cashbackapp.data.remote.dto.LoadItemDetails
 import mx.diossa.cashbackapp.data.repository.CashbackRepository
 import mx.diossa.cashbackapp.data.repository.InventoryRepository
 import mx.diossa.cashbackapp.domain.model.Product
@@ -42,13 +43,6 @@ class ProcessExchangeUseCase @Inject constructor(
             return ExchangeResult.InventoryFailure(unavailableProducts)
         }
 
-        android.util.Log.d("PROCESSEXCHANGE_USE_CASE", "Inventario OK, actualizando cashback ${ticket.idCashback}")
-        val statusResult = cashbackRepository.updateCashbackStatus(ticket.idCashback)
-        if (statusResult.isFailure) {
-            android.util.Log.e("PROCESSEXCHANGE_USE_CASE", "Error actualizando estado", statusResult.exceptionOrNull())
-            return ExchangeResult.ApiError("No se pudo actualizar el estado del ticket.")
-        }
-
         val itemsToPost = selectedProducts.map { (product, quantity) ->
             ItemData(idProduct = product.id.toInt(), quantity = quantity)
         }
@@ -67,6 +61,23 @@ class ProcessExchangeUseCase @Inject constructor(
         if (postLoadResult.isFailure) {
             android.util.Log.e("PROCESSEXCHANGE_USE_CASE", "Error registrando productos en /Load", postResult.exceptionOrNull())
             return ExchangeResult.ApiError("No se pudieron registrar los productos para la carga.")
+        }
+
+        val itemDetails = selectedProducts.map { (product, quantity) ->
+            LoadItemDetails(idProduct = product.id.toInt(), quantity = quantity)
+        }
+
+        val postDetailsResult = cashbackRepository.postCashbackItemDetails(ticket.idCashback, itemDetails)
+        if (postDetailsResult.isFailure) {
+            android.util.Log.e("PROCESSEXCHANGE_USE_CASE", "Error registrando productos en /details", postResult.exceptionOrNull())
+            return ExchangeResult.ApiError("No se pudieron registrar los productos para el detalle.")
+        }
+
+        android.util.Log.d("PROCESSEXCHANGE_USE_CASE", "Inventario OK, actualizando cashback ${ticket.idCashback}")
+        val statusResult = cashbackRepository.updateCashbackStatus(ticket.idCashback)
+        if (statusResult.isFailure) {
+            android.util.Log.e("PROCESSEXCHANGE_USE_CASE", "Error actualizando estado", statusResult.exceptionOrNull())
+            return ExchangeResult.ApiError("No se pudo actualizar el estado del ticket.")
         }
 
         android.util.Log.d("PROCESSEXCHANGE_USE_CASE", "Proceso de canje completado correctamente")
