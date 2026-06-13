@@ -13,28 +13,37 @@ Aplicación Android desarrollada en **Kotlin** y **Jetpack Compose** para el pro
 
 ---
 
-## 📸 Capturas de pantalla
+## 📸 CAPTURAS DE PANTALLA
 
-### Pantalla principal
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="./screenshots/LoginScreen.png" width="250" alt="Login Screen"><br>
+      <sub><b>Menu Principal</b></sub>
+    </td>
+    <td align="center">
+      <img src="./screenshots/history_screen.png" width="250" alt="History Screen"><br>
+      <sub><b>Historial</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./screenshots/ticket_check.png" width="250" alt="Ticket Validation"><br>
+      <sub><b>Ticket</b></sub>
+    </td>
+    <td align="center">
+      <img src="./screenshots/success.png" width="250" alt="Redeem Success"><br>
+      <sub><b>Canje exitoso</b></sub>
+    </td>
+  </tr>
 
-![Pantalla Principal](./screenshots/LoginScreen.png)
-
-### Historial de pedidos
-
-![PEDIDOS](./history_screen.png)
-
-### Detalle del Cashback
-
-![Detalle Cashback](./ticket_check.png)
-
-### Canje de productos
-
-![Canje](./success.png)
-
-### Error de inventario
-
-![Canje](./no_inventory.png)
-
+  <tr>
+    <td align="center" colspan="2">
+      <img src="./screenshots/no_inventory.png" width="250" alt="No Inventory"><br>
+      <sub><b>No Inventorio</b></sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
