@@ -8,7 +8,7 @@ data class ApiResponseCashback(
     val error: ApiError?
 )
 
-data class CashbackDetail(
+data class  CashbackDetail(
     @SerializedName("cashback_id")
     val idCashback: Int,
 

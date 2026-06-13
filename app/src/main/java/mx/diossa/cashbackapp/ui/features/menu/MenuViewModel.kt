@@ -24,7 +24,7 @@ class MenuViewModel @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     private val ticketGenerator: TicketGenerator,
     private val printerConnection: PrinterConnection,
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ): ViewModel(){
     private val _recentTickets = MutableStateFlow<List<TicketEntity>>(emptyList())
     val recentTickets: StateFlow<List<TicketEntity>> = _recentTickets.asStateFlow()

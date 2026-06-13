@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import mx.diossa.cashbackapp.domain.model.LoginUserModel
 import mx.diossa.cashbackapp.domain.usecases.ValidateLoginUseCase
 import javax.inject.Inject
+import androidx.core.content.edit
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -73,21 +74,23 @@ class LoginViewModel @Inject constructor(
                 _uiState.value.password.trim()
             )
 
-            result.onSuccess { loginResult ->
-                sharedPreferences.edit()
-                    .putBoolean("is_logged_in", true)
-                    .putString("access_token", loginResult.access)
-                    .putString("employee_name", loginResult.employeeName)
-                    .apply()
+            try {
+                val loginResult = validateLoginUseCase(
+                    _uiState.value.username.trim(),
+                    _uiState.value.password.trim()
+                )
+                sharedPreferences.edit().putBoolean("is_logged_in", true)
+                    //.putString("access_token", loginResult.access)
+                    //.putString("employee_name", loginResult.employeeName)
 
                 _uiState.update { it.copy(isLoading = false) }
                 _navigationEvent.value = NavigationEvent.NavigateToMenu
 
-            }.onFailure { error ->
+            } catch(e: Exception) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Credenciales inválidas"
+                        errorMessage = e.message ?: "Credenciales inválidas"
                     )
                 }
             }

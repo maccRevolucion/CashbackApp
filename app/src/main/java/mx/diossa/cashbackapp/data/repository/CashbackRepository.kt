@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import mx.diossa.cashbackapp.data.remote.datasource.RemoteDataSource
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponse
 import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
+import mx.diossa.cashbackapp.data.remote.dto.EmployeeCarryData
 import mx.diossa.cashbackapp.data.remote.dto.ItemData
 import mx.diossa.cashbackapp.data.remote.dto.LoadData
 import mx.diossa.cashbackapp.data.remote.dto.LoadItemDetails
@@ -41,7 +42,7 @@ class CashbackRepository @Inject constructor(
         return try {
             Log.d("CASHBACK_REPOSITOTY", "Actualizando cashback $idCashback a COMPLETED")
             val request = UpdateStatusRequest(status = "COMPLETED")
-            val response = remoteDataSource.updateStatus(idCashback, request)
+            val response = remoteDataSource.updateStatus(request)
             if (response.success) {
                 Log.d("CASHBACK_REPOSITOTY", "Estado actualizado correctamente")
                 Result.success(Unit)
@@ -109,7 +110,33 @@ class CashbackRepository @Inject constructor(
         }
     }
 
+    suspend fun postCarryData(employeeId: Int, quantity: Int): Result<EmployeeCarryData> {
+        return try {
+            val response = remoteDataSource.postCarry(EmployeeCarryData(employeeId, quantity))
+            if (response.success && response.data != null) {
+                val carryData = response.data
+                val result = EmployeeCarryData(
+                    employeeId = carryData.employeeId,
+                    quantity = carryData.quantity
+                )
+                Result.success(result)
+            } else {
+                Result.failure(Exception(response.error?.detail ?: "Respuesta de API no exitosa o sin datos"))
+            }
 
+        } catch (e: HttpException) {
+            val errorBody = e.response()?.errorBody()?.string()
+            val apiResponse = try {
+                Gson().fromJson(errorBody, ApiResponse::class.java)
+            } catch (_: Exception) {
+                null
+            }
+            val message = apiResponse?.error?.detail ?: "Error desconocido en el servidor"
+            Result.failure(Exception(message))
 
-
+        } catch (e: Exception) {
+            Log.e("CASHBACK_REPOSITOTY", "Post Carry - falló", e)
+            Result.failure(e)
+        }
+    }
 }

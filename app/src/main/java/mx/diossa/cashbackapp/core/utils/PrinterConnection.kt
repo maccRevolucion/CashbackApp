@@ -12,6 +12,7 @@ import android.os.Message
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import mx.diossa.cashbackapp.core.utils.BluetoothService.Companion.STATE_CONNECTED
 import java.lang.ref.WeakReference
 
 data class PrinterStatus(
@@ -24,7 +25,7 @@ class PrinterConnection private constructor(private val context: WeakReference<C
     private val _printerStatus = MutableStateFlow(PrinterStatus())
     val printerStatus = _printerStatus.asStateFlow()
 
-    private var bluetoothService: BluetoothService?
+    var bluetoothService: BluetoothService?
     private var bluetoothDevice: BluetoothDevice? = null
     private var macPrinter: String
     private val preferences: SharedPreferences? = context.get()?.getSharedPreferences("preferences", Context.MODE_PRIVATE)

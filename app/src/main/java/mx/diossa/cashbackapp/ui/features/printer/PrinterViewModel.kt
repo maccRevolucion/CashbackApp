@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import mx.diossa.cashbackapp.core.utils.BluetoothService
+import mx.diossa.cashbackapp.core.utils.PrinterCommand
 import mx.diossa.cashbackapp.core.utils.PrinterConnection
 import mx.diossa.cashbackapp.domain.model.Ticket
 import mx.diossa.cashbackapp.domain.model.UiStatePrinter
@@ -89,7 +90,7 @@ class PrinterViewModel @Inject constructor(
 
     fun printTest() {
         if (!printerConnection.isConnected()) {
-            _uiState.update { it.copy(error = "No conectado a la impresora") }
+            printerConnection.reconnectPrinter()
             return
         }
         viewModelScope.launch {
@@ -98,7 +99,7 @@ class PrinterViewModel @Inject constructor(
                 printerConnection.sendMessage(testTicket)
                 _uiState.update { it.copy(error = null) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Error al imprimir: ${e.message}") }
+                Log.e("PRINTER_VIEW_MODEL", "Error: ${e.message}", e)
             }
         }
     }

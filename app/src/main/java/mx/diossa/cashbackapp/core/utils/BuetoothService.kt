@@ -257,7 +257,10 @@ class BluetoothService(private val context: Context, private val handler: Handle
 
         fun write(buffer: ByteArray) {
             try {
-                mmOutStream?.write(buffer)
+                mmOutStream?.apply {
+                    write(buffer)
+                    flush()
+                }
                 handler.obtainMessage(MESSAGE_WRITE, -1, -1, buffer).sendToTarget()
             } catch (e: IOException) {
                 Log.e(TAG, "Exception during write", e)

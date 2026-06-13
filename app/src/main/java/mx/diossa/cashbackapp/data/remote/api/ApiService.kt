@@ -1,5 +1,6 @@
 package mx.diossa.cashbackapp.data.remote.api
 
+import mx.diossa.cashbackapp.data.remote.dto.ApiResponseCarry
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseCashback
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseCashbackDetails
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseInventory
@@ -7,14 +8,13 @@ import mx.diossa.cashbackapp.data.remote.dto.ApiResponseLoadItems
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseLogin
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponsePostItems
 import mx.diossa.cashbackapp.data.remote.dto.ApiResponseUpdateStatus
-import mx.diossa.cashbackapp.data.remote.dto.CashbackDetail
 import mx.diossa.cashbackapp.data.remote.dto.ItemData
 import mx.diossa.cashbackapp.data.remote.dto.LoadData
 import mx.diossa.cashbackapp.data.remote.dto.LoadItemDetails
 import mx.diossa.cashbackapp.data.remote.dto.LoginRequest
 import mx.diossa.cashbackapp.data.remote.dto.UpdateStatusRequest
+import mx.diossa.cashbackapp.data.remote.dto.EmployeeCarryData
 import retrofit2.http.Body
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -42,4 +42,6 @@ interface ApiService {
     @POST("cashback/{id_cashback}/details")
     suspend fun postItemDetails(@Path("id_cashback") idCashback: Int, @Body request: List<LoadItemDetails>): ApiResponseCashbackDetails
 
+    @POST("cashback/carry")
+    suspend fun postCarry(@Body request: EmployeeCarryData): ApiResponseCarry
 }

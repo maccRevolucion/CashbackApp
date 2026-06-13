@@ -18,7 +18,7 @@ class UserRepository @Inject constructor(
     suspend fun login(username: String, password: String): Result<LoginData> {
         return try {
             val response = remoteDataSource.login(LoginRequest(username, password))
-            if (response.success && response.data != null) {
+            if (response.success) {
                 val loginData = response.data
                 val result = LoginData(
                     idEmployee = loginData.idEmployee,
@@ -50,7 +50,7 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun validateUser(username: String, password: String): UserEntity?{
+    suspend fun validateUser(username: String, password: String): LoginRequest {
         localDataSource.initializeUserIfNeeded()
         return localDataSource.validateUser(username, password)
     }

@@ -113,9 +113,7 @@ fun ScanScreen(navController: NavController, viewModel: ScanViewModel = hiltView
                                         )
                                         scanner.process(image)
                                             .addOnSuccessListener { barcodes ->
-                                                barcodes
-                                                    .mapNotNull { it.rawValue }
-                                                    .firstOrNull()
+                                                barcodes.firstNotNullOfOrNull { it.rawValue }
                                                     ?.let { viewModel.processScannedCode(it) }
                                             }
                                             .addOnCompleteListener { proxy.close() }

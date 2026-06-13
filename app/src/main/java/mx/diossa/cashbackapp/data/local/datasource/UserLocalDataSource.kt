@@ -2,12 +2,13 @@ package mx.diossa.cashbackapp.data.local.datasource
 
 import mx.diossa.cashbackapp.data.local.dao.UserDao
 import mx.diossa.cashbackapp.data.local.entity.UserEntity
+import mx.diossa.cashbackapp.data.remote.dto.LoginRequest
 import javax.inject.Inject
 
 class UserLocalDataSource @Inject constructor(
     private val userDao: UserDao
 ) {
-    suspend fun validateUser(username: String, password: String): UserEntity? {
+    suspend fun validateUser(username: String, password: String): LoginRequest {
         return userDao.getUser(username, password)
     }
 

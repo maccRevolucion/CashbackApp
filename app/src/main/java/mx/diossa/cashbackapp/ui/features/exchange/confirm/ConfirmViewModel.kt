@@ -62,14 +62,14 @@ class ConfirmViewModel @Inject constructor(
             if (result is ExchangeResult.Success) {
                 val ticketString = formatTicketForPrinting()
                 printerConnection.sendMessage(ticketString)
-                val entity = TicketEntity(
-                    id = ticket.idCashback.toString(),
-                    ticketNumber = "${ticket.idCashback}",
-                    employeeName = ticket.nameEmployee,
-                    date = LocalDateTime.now(),
-                    amount = ticket.cashbackValue,
-                    status = "completed"
-                )
+                    val entity = TicketEntity(
+                        id = ticket.idCashback.toString(),
+                        ticketNumber = "${ticket.idCashback}",
+                        employeeName = ticket.nameEmployee,
+                        date = LocalDateTime.now(),
+                        amount = _uiState.value.total.toInt(),
+                        status = "completed"
+                    )
 
                 val productEntities = selectedProducts.map { (product, quantity) ->
                     TicketProductEntity(
@@ -80,6 +80,10 @@ class ConfirmViewModel @Inject constructor(
                     )
                 }
                 ticketRepository.insertTicketWithProducts(entity, productEntities)
+            } else if (result is ExchangeResult.CarryLimitExceeded){
+                val message = "Canje exitoso, pero el sobrante de $${result.excessAmount} " +
+                        "excede el límite de $10.0 No se registró carry."
+                _navigationEvent.emit(ExchangeResult.ApiError(message))
             }
 
             _navigationEvent.emit(result)

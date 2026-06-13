@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardBackspace
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -25,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -41,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import mx.diossa.cashbackapp.domain.model.Product
 import mx.diossa.cashbackapp.ui.theme.TextGreyComponent
 import mx.diossa.cashbackapp.ui.theme.PrimaryColor
+import mx.diossa.cashbackapp.ui.theme.RedBackgroundComponent
+import mx.diossa.cashbackapp.ui.theme.RedTextComponent
 import mx.diossa.cashbackapp.ui.theme.TextColor
 
 @Composable
@@ -69,12 +73,48 @@ fun HeaderTitleProductComponent(onBack: () -> Unit){
 
 @Preview
 @Composable
+fun WarningCashback(){
+    Surface(
+        color = RedBackgroundComponent,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .height(50.dp)
+    ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)){
+            Row(
+                modifier = Modifier
+                    //.padding(8.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+            ) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    tint = RedTextComponent,
+                    imageVector = Icons.Outlined.Warning,
+                    contentDescription = "")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    color = RedTextComponent,
+                    fontSize = 12.sp,
+                    text = "El saldo restante debe estar en $0.00, en caso contrario se pierde el sobrante para su próxima compra."
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
 fun Preview_InfoCard(){
-    inforCard(balance = 0, selected = 0.0, remaining = 0.0)
+    InforCard(balance = 0, selected = 0.0, remaining = 0.0)
 }
 
 @Composable
-fun inforCard(
+fun InforCard(
     balance: Int,
     selected: Double,
     remaining: Double
@@ -293,7 +333,7 @@ fun ItemProduct(
 }
 
 @Composable
-fun bottomButton(onSelected: () -> Unit){
+fun BottomButton(onSelected: () -> Unit){
     Button(
         onClick = onSelected,
         shape = RoundedCornerShape(4.dp),

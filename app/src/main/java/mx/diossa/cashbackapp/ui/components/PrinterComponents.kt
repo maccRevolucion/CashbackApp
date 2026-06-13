@@ -180,7 +180,7 @@ fun PrinterDataComponent(printerName: String, isConnected: Boolean){
                         color = TextGreyComponent,
                         text = "Tamaño del papel:"
                     )
-                    Text(text = "80mm")
+                    Text(text = "56mm")
                 }
 
                 Row(

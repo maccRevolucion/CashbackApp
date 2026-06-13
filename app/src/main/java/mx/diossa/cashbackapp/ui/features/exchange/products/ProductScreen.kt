@@ -48,76 +48,82 @@ fun ProductScreen(
         color = Color.White
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                state = listState,
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = 72.dp)
                     .padding(horizontal = 8.dp)
             ) {
-                item {
-                    HeaderTitleProductComponent(onBack = { navController.popBackStack() })
-                    Spacer(modifier = Modifier.height(18.dp))
-                    inforCard(
-                        balance = uiState.totalBalance,
-                        selected = viewModel.getSelectedAmount(),
-                        remaining = viewModel.getRemaining()
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    SubHeader()
-                    Spacer(modifier = Modifier.height(8.dp))
-                    SearchBar(
-                        query = uiState.query,
-                        onQueryChange = viewModel::onQueryChanged,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
+                HeaderTitleProductComponent(onBack = { navController.popBackStack() })
+                Spacer(modifier = Modifier.height(18.dp))
+                InforCard(
+                    balance = uiState.totalBalance,
+                    selected = viewModel.getSelectedAmount(),
+                    remaining = viewModel.getRemaining()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                WarningCashback()
+                Spacer(modifier = Modifier.height(5.dp))
+                SubHeader()
+                Spacer(modifier = Modifier.height(8.dp))
+                SearchBar(
+                    query = uiState.query,
+                    onQueryChange = viewModel::onQueryChanged,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
 
-                val productsToShow = if (uiState.query.isNotEmpty()) {
-                    uiState.filteredProducts
-                } else {
-                    uiState.visibleProducts
-                }
-
-                itemsIndexed(productsToShow) { index, product ->
-                    ItemProduct(
-                        product = product,
-                        quantity = uiState.selectedQuantities[product] ?: 0,
-                        onIncrement = { viewModel.onIncrement(product) },
-                        onDecrement = { viewModel.onDecrement(product) }
-                    )
-
-                    if (uiState.query.isEmpty() &&
-                        index >= uiState.visibleProducts.size - 1 &&
-                        !uiState.endReached &&
-                        !uiState.isLoading
-                    ) {
-                        viewModel.loadNextPage()
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .padding(bottom = 72.dp)
+                ) {
+                    val productsToShow = if (uiState.query.isNotEmpty()) {
+                        uiState.filteredProducts
+                    } else {
+                        uiState.visibleProducts
                     }
-                }
-                if (uiState.isLoading) {
-                    item {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .wrapContentWidth(Alignment.CenterHorizontally)
+
+                    itemsIndexed(productsToShow) { index, product ->
+                        ItemProduct(
+                            product = product,
+                            quantity = uiState.selectedQuantities[product] ?: 0,
+                            onIncrement = { viewModel.onIncrement(product) },
+                            onDecrement = { viewModel.onDecrement(product) }
                         )
+
+                        if (uiState.query.isEmpty() &&
+                            index >= uiState.visibleProducts.size - 1 &&
+                            !uiState.endReached &&
+                            !uiState.isLoading
+                        ) {
+                            viewModel.loadNextPage()
+                        }
                     }
-                }
-                if (uiState.error != null) {
-                    item {
-                        Text(
-                            text = uiState.error,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            textAlign = TextAlign.Center,
-                            color = Color.Gray
-                        )
+                    if (uiState.isLoading) {
+                        item {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .wrapContentWidth(Alignment.CenterHorizontally)
+                            )
+                        }
+                    }
+                    if (uiState.error != null) {
+                        item {
+                            Text(
+                                text = uiState.error,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center,
+                                color = Color.Gray
+                            )
+                        }
                     }
                 }
             }
@@ -128,7 +134,7 @@ fun ProductScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                bottomButton(onSelected = { viewModel.onContinueClicked(exchangeViewModel) })
+                BottomButton(onSelected = { viewModel.onContinueClicked(exchangeViewModel) })
             }
         }
     }

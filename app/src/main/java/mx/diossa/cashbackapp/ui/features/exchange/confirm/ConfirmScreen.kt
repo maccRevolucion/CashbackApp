@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.gson.Gson
 import mx.diossa.cashbackapp.domain.usecases.ExchangeResult
 import mx.diossa.cashbackapp.ui.components.ButtonBottomComponent
 import mx.diossa.cashbackapp.ui.components.HeaderTitleComponent
