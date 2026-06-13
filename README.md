@@ -17,7 +17,7 @@ Aplicación Android desarrollada en **Kotlin** y **Jetpack Compose** para el pro
 
 ### Pantalla principal
 
-![Pantalla Principal](./LoginScreen.png)
+![Pantalla Principal](./screenshots/LoginScreen.png)
 
 ### Historial de pedidos
 
